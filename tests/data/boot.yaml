@@ -1,0 +1,3 @@
+name: Boots
+command: ls
+timeout: 100
