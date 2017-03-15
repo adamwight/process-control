@@ -8,7 +8,7 @@ import job_wrapper
 data_dir = os.path.dirname(__file__) + "/data"
 
 
-def run_test_job(filename):
+def run_job(filename):
     path = data_dir + "/" + filename
     job = job_wrapper.JobWrapper(config_path=path)
 
@@ -17,7 +17,7 @@ def run_test_job(filename):
 
 def test_success():
     with iocapture.capture() as captured:
-        run_test_job("successful.yaml")
+        run_job("successful.yaml")
 
         assert captured.stdout == ""
         assert captured.stderr == ""
@@ -25,7 +25,7 @@ def test_success():
 
 def test_return_code():
     with iocapture.capture() as captured:
-        run_test_job("return_code.yaml")
+        run_job("return_code.yaml")
 
         assert captured.stdout == ""
         assert captured.stderr == "Job False job failed with code 1\n"
@@ -35,7 +35,7 @@ def test_timeout():
     start_time = datetime.datetime.utcnow()
 
     with iocapture.capture() as captured:
-        run_test_job("timeout.yaml")
+        run_job("timeout.yaml")
 
         assert captured.stdout == ""
         assert captured.stderr == (
@@ -51,7 +51,7 @@ def test_timeout():
 
 def test_stderr():
     with iocapture.capture() as captured:
-        run_test_job("errors.yaml")
+        run_job("errors.yaml")
 
         assert captured.stdout == ""
         assert captured.stderr == (
