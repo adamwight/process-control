@@ -13,7 +13,7 @@ DEFAULT_TIMEOUT = 600
 
 class JobWrapper(object):
     def __init__(self, config_path=None):
-        self.config = yaml.safe_load(file(config_path, "r"))
+        self.config = yaml.safe_load(open(config_path, "r"))
         self.name = self.config["name"]
         self.start_time = datetime.datetime.utcnow().isoformat()
 
@@ -37,7 +37,7 @@ class JobWrapper(object):
 
             self.store_job_output(stdout_data)
 
-            if stderr_data != '':
+            if len(stderr_data) > 0:
                 self.fail_has_stderr(stderr_data)
         finally:
             timer.cancel()
@@ -53,7 +53,7 @@ class JobWrapper(object):
 
     def fail_has_stderr(self, stderr_data):
         print("Job {name} printed things to stderr:".format(name=self.name), file=sys.stderr)
-        print(stderr_data, file=sys.stderr)
+        print(stderr_data.decode("utf-8"), file=sys.stderr)
 
     def fail_timeout(self):
         self.process.kill()
@@ -65,7 +65,7 @@ class JobWrapper(object):
             return
 
         destination = self.config["stdout_destination"]
-        out = file(destination, "a")
+        out = open(destination, "a")
 
         header = (
             "===========\n"
@@ -74,4 +74,4 @@ class JobWrapper(object):
         ).format(name=self.name, pid=self.process.pid, time=self.start_time)
         print(header, file=out)
 
-        out.write(stdout_data)
+        out.write(stdout_data.decode("utf-8"))
