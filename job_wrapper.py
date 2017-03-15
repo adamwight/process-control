@@ -9,10 +9,10 @@ DEFAULT_TIMEOUT = 600
 
 
 class JobWrapper(object):
-    def __init__(self, conf_file):
-        self.config = yaml.safe_load(file(conf_file, "r"))
+    def __init__(self, config_path=None):
+        self.config = yaml.safe_load(file(config_path, "r"))
         self.name = self.config["name"]
-        lock.begin()
+        lock.begin(job_tag=self.name)
 
     def run(self):
         command = shlex.split(self.config["command"])

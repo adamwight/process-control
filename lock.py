@@ -12,11 +12,9 @@ from logging import Logger as log
 lockfile = None
 
 
-def begin(filename=None, failopen=False):
+def begin(filename=None, failopen=False, job_tag=None):
     if not filename:
-        unique = os.environ['LOGNAME']
-        cmd = os.path.basename(sys.argv[0])
-        filename = "/tmp/%s-%s.lock" % (unique, cmd)
+        filename = "/tmp/{name}.lock".format(name=job_tag)
 
     if os.path.exists(filename):
         log.warn("Lockfile found!")
