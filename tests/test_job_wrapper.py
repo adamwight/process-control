@@ -1,5 +1,6 @@
 import datetime
 import iocapture
+import nose
 import os
 
 import job_wrapper
@@ -31,9 +32,9 @@ def test_return_code():
         assert captured.stderr == "Job False job failed with code 1\n"
 
 
+# Must finish in less than two seconds, i.e. must have timed out.
+@nose.tools.timed(2)
 def test_timeout():
-    start_time = datetime.datetime.utcnow()
-
     with iocapture.capture() as captured:
         run_job("timeout.yaml")
 
@@ -42,11 +43,6 @@ def test_timeout():
             "Job Timing out job timed out after 0.1 seconds\n"
             "Job Timing out job failed with code -9\n"
         )
-
-    end_time = datetime.datetime.utcnow()
-    delta = end_time - start_time
-
-    assert delta.total_seconds() < 2
 
 
 def test_stderr():

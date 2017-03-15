@@ -3,6 +3,7 @@ Lockfile using a temporary file and the process id.
 
 Self-corrects stale locks unless "failopen" is True.
 '''
+from __future__ import print_function
 import os
 import os.path
 import sys
@@ -17,7 +18,7 @@ def begin(filename=None, failopen=False, job_tag=None):
         filename = "/tmp/{name}.lock".format(name=job_tag)
 
     if os.path.exists(filename):
-        log.warn("Lockfile found!")
+        print("Lockfile found!", file=sys.stderr)
         f = open(filename, "r")
         pid = None
         try:
@@ -26,18 +27,16 @@ def begin(filename=None, failopen=False, job_tag=None):
             pass
         f.close()
         if not pid:
-            log.error("Invalid lockfile contents.")
+            print("Invalid lockfile contents.", file=sys.stderr)
         else:
             try:
                 os.getpgid(pid)
-                log.error("Aborting! Previous process ({pid}) is still alive. Remove lockfile manually if in error: {path}".format(pid=pid, path=filename))
-                sys.exit(1)
+                raise LockError("Aborting! Previous process ({pid}) is still alive. Remove lockfile manually if in error: {path}".format(pid=pid, path=filename))
             except OSError:
                 if failopen:
-                    log.fatal("Aborting until stale lockfile is investigated: {path}".format(path=filename))
-                    sys.exit(1)
-                log.error("Lockfile is stale.")
-        log.info("Removing old lockfile.")
+                    raise LockError("Aborting until stale lockfile is investigated: {path}".format(path=filename))
+                print("Lockfile is stale.", file=sys.stderr)
+        print("Removing old lockfile.", file=sys.stderr)
         os.unlink(filename)
 
     f = open(filename, "w")
@@ -50,7 +49,11 @@ def begin(filename=None, failopen=False, job_tag=None):
 
 def end():
     global lockfile
-    if lockfile:
+    if lockfile and os.path.exists(lockfile):
         os.unlink(lockfile)
     else:
-        raise RuntimeError("Already unlocked!")
+        raise LockError("Already unlocked!")
+
+
+class LockError(RuntimeError):
+    pass
