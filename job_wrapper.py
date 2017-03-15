@@ -16,18 +16,20 @@ class JobWrapper(object):
         self.config = yaml.safe_load(file(config_path, "r"))
         self.name = self.config["name"]
         self.start_time = datetime.datetime.utcnow().isoformat()
-        lock.begin(job_tag=self.name)
-
-    def run(self):
-        command = shlex.split(self.config["command"])
 
         if "timeout" in self.config:
-            timeout = self.config["timeout"]
+            self.timeout = self.config["timeout"]
         else:
-            timeout = DEFAULT_TIMEOUT
+            self.timeout = DEFAULT_TIMEOUT
+
+    def run(self):
+        lock.begin(job_tag=self.name)
+
+        command = shlex.split(self.config["command"])
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        timer = threading.Timer(timeout, self.process.kill)
+        timer = threading.Timer(self.timeout, self.fail_timeout)
+        timer.start()
 
         try:
             # FIXME: This doesn't stream, so large output will be buffered in memory.
@@ -52,6 +54,11 @@ class JobWrapper(object):
     def fail_has_stderr(self, stderr_data):
         print("Job {name} printed things to stderr:".format(name=self.name), file=sys.stderr)
         print(stderr_data, file=sys.stderr)
+
+    def fail_timeout(self):
+        self.process.kill()
+        print("Job {name} timed out after {timeout} seconds".format(name=self.name, timeout=self.timeout), file=sys.stderr)
+        # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
 
     def store_job_output(self, stdout_data):
         if "stdout_destination" not in self.config:

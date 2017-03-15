@@ -1,0 +1,3 @@
+name: Timing out job
+command: /bin/sleep 2
+timeout: 0.1
