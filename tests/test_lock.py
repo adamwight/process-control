@@ -6,7 +6,7 @@ import lock
 
 def tearDown():
     # Clean up any old lockfiles.
-    if lock.lockfile != None:
+    if lock.lockfile is not None:
         if os.path.exists(lock.lockfile):
             os.unlink(lock.lockfile)
 

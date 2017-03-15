@@ -1,4 +1,0 @@
-name: Boots
-command: ls
-timeout: 100
-stdout_destination: "/tmp/a"

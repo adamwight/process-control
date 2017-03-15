@@ -8,8 +8,6 @@ import os
 import os.path
 import sys
 
-from logging import Logger as log
-
 lockfile = None
 
 

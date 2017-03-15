@@ -1,4 +1,3 @@
-import datetime
 import iocapture
 import nose
 import os
@@ -55,3 +54,20 @@ def test_stderr():
             "grep: Invalid regular expression\n\n"
             "Job Bad grep job failed with code 2\n"
         )
+
+
+def test_store_output():
+    path = "/tmp/which_out.log"
+
+    if os.path.exists(path):
+        os.unlink(path)
+
+    run_job("which_out.yaml")
+
+    contents = open(path, "r").read()
+    lines = contents.split("\n")
+
+    assert len(lines) == 6
+    assert lines[4] == "/bin/bash"
+
+    os.unlink(path)
