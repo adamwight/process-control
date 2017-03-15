@@ -55,7 +55,7 @@ def test_stale_lock():
 @nose.tools.raises(lock.LockError)
 def test_stale_lock_failopen():
     tag = "stale-open"
-    lock.begin(job_tag=tag, failopen=True)
+    lock.begin(job_tag=tag)
 
     # Make the lockfile stale by changing the process ID.
     assert lock.lockfile
@@ -63,7 +63,7 @@ def test_stale_lock_failopen():
     f.write("-1")
     f.close()
 
-    lock.begin(job_tag=tag)
+    lock.begin(job_tag=tag, failopen=True)
 
 
 def test_invalid_lock():
