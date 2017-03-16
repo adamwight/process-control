@@ -27,9 +27,15 @@ class JobWrapper(object):
         else:
             self.timeout = DEFAULT_TIMEOUT
 
-    def run(self):
-        # if "disabled" in self.config and self.config["disabled"] in ["1", "true"]:
+        if "disabled" in self.config and self.config["disabled"] is True:
+            self.enabled = False
+        else:
+            self.enabled = True
 
+        if "schedule" not in self.config:
+            self.enabled = False
+
+    def run(self):
         lock.begin(job_tag=self.name)
 
         command = shlex.split(self.config["command"])

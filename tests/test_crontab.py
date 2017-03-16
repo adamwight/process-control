@@ -11,7 +11,8 @@ def test_crontab():
     tab = tab.replace(test_conf_dir, "X")
     tab = tab.replace(crontab.RUNNER_PATH, "Y")
 
-    expected = """# Generated from X/schedule_2.yaml
+    expected = """# Skipping disabled job X/disabled.yaml
+# Generated from X/schedule_2.yaml
 */10 * * * * jenkins Y X/schedule_2.yaml
 # Generated from X/schedule_good.yaml
 */5 * * * * jenkins Y X/schedule_good.yaml

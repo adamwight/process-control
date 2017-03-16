@@ -34,7 +34,7 @@ def make_cron(config_dir):
 class JobCrontab(object):
     def __init__(self, job=None):
         self.job = job
-        if "schedule" in job.config:
+        if "schedule" in job.config and job.enabled:
             self.enabled = True
         else:
             self.enabled = False

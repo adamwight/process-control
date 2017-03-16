@@ -18,6 +18,14 @@ name: Take This Job and Shove It
 
 command: /usr/local/bin/timecard --start 9:00 --end 5:30
 
+# Optional schedule, in Vixie cron format:
+# minute hour day-of-month month day-of-week
+schedule: */5 * * * *
+
+# Optional flag to prevent scheduled job execution.  The job
+# can still be run as a single-shot.
+disabled: true
+
 # Optional timeout in seconds, after which your job will be
 # aborted.  Defaults to 10 minutes, JobWrapper.DEFAULT_TIMEOUT
 timeout: 30
@@ -52,3 +60,5 @@ TODO
 * Script to kill jobs.
 * Script to run a job one-off.
 * Job group tags.
+* Slow-start and monitoring.
+* Optional backoff.

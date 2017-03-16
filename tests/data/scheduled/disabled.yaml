@@ -1,0 +1,4 @@
+name: No cron
+command: /bin/true
+disabled: true
+schedule: "* * * * *"
