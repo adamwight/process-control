@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/adamwight/process-control
+
+Files: *
+Copyright: 2017, Adam Roses Wight <awight@wikimedia.org>
+License: GPL-2
+ /usr/share/common-licenses/GPL-2
