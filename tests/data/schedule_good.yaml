@@ -1,0 +1,3 @@
+name: Valid cron
+command: /bin/true
+schedule: "*/5 * * * *"

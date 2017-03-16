@@ -8,12 +8,15 @@ import yaml
 
 import lock
 
+# TODO: Global config.
 DEFAULT_TIMEOUT = 600
 
 
 class JobWrapper(object):
     def __init__(self, config_path=None):
         self.config = yaml.safe_load(open(config_path, "r"))
+        self.validate_config()
+
         self.name = self.config["name"]
         self.start_time = datetime.datetime.utcnow().isoformat()
 
@@ -75,3 +78,16 @@ class JobWrapper(object):
         print(header, file=out)
 
         out.write(stdout_data.decode("utf-8"))
+
+    def validate_config(self):
+        assert "name" in self.config
+        assert "command" in self.config
+        if "schedule" in self.config:
+            # No tricky assignments.
+            assert "=" not in self.config["schedule"]
+            # Legal cron, but I don't want to deal with it.
+            assert "@" not in self.config["schedule"]
+
+            # Be sure the schedule is valid.
+            terms = self.config["schedule"].split()
+            assert len(terms) == 5

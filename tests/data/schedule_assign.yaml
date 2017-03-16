@@ -1,0 +1,3 @@
+name: Bad assignment job
+command: /bin/true
+schedule: USER=root a b c d

@@ -21,3 +21,7 @@ timeout: 30
 # Optional filename for the job output.  All output will be concatenated into this file, with a header for each job.
 stdout_destination: "/tmp/jobnuts.log"
 ```
+
+TODO:
+* Syslog actions, at least when tweezing new crontabs.
+* Log invocations.
