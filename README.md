@@ -20,7 +20,7 @@ command: /usr/local/bin/timecard --start 9:00 --end 5:30
 
 # Optional schedule, in Vixie cron format:
 # minute hour day-of-month month day-of-week
-schedule: */5 * * * *
+schedule: "*/5 * * * *"
 
 # Optional flag to prevent scheduled job execution.  The job
 # can still be run as a single-shot.
