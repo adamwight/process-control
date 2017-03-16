@@ -48,3 +48,7 @@ TODO
 * Prevent future job runs when unrecoverable failure conditions are detected.
 * Should we support commandline flags?
 * Fine-tuning of failure detection.
+* Script to tweeze crontab.
+* Script to kill jobs.
+* Script to run a job one-off.
+* Job group tags.

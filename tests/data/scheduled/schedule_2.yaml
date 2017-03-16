@@ -1,0 +1,3 @@
+name: Another cronjob
+command: /bin/true
+schedule: "*/10 * * * *"

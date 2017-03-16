@@ -8,12 +8,14 @@ import yaml
 
 import lock
 
+
 # TODO: Global config.
 DEFAULT_TIMEOUT = 600
 
 
 class JobWrapper(object):
     def __init__(self, config_path=None):
+        self.config_path = config_path
         self.config = yaml.safe_load(open(config_path, "r"))
         self.validate_config()
 
@@ -26,6 +28,8 @@ class JobWrapper(object):
             self.timeout = DEFAULT_TIMEOUT
 
     def run(self):
+        # if "disabled" in self.config and self.config["disabled"] in ["1", "true"]:
+
         lock.begin(job_tag=self.name)
 
         command = shlex.split(self.config["command"])
