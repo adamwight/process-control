@@ -1,3 +1,4 @@
+from mock import patch
 import iocapture
 import nose
 import os
@@ -23,17 +24,22 @@ def test_success():
         assert captured.stderr == ""
 
 
-def test_return_code():
+@patch("smtplib.SMTP")
+def test_return_code(MockSmtp):
+    expected = "Job False job failed with code 1\n"
     with iocapture.capture() as captured:
         run_job("return_code.yaml")
 
         assert captured.stdout == ""
-        assert captured.stderr == "Job False job failed with code 1\n"
+        assert captured.stderr == expected
+
+    MockSmtp().sendmail.assert_called_once()
 
 
 # Must finish in less than two seconds, i.e. must have timed out.
 @nose.tools.timed(2)
-def test_timeout():
+@patch("smtplib.SMTP")
+def test_timeout(MockSmtp):
     with iocapture.capture() as captured:
         run_job("timeout.yaml")
 
@@ -43,8 +49,11 @@ def test_timeout():
             "Job Timing out job failed with code -9\n"
         )
 
+    MockSmtp().sendmail.assert_called_once()
 
-def test_stderr():
+
+@patch("smtplib.SMTP")
+def test_stderr(MockSmtp):
     with iocapture.capture() as captured:
         run_job("errors.yaml")
 
@@ -54,6 +63,8 @@ def test_stderr():
             "grep: Invalid regular expression\n\n"
             "Job Bad grep job failed with code 2\n"
         )
+
+    MockSmtp().sendmail.assert_called_once()
 
 
 def test_store_output():

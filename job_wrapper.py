@@ -7,7 +7,7 @@ import threading
 import yaml
 
 import lock
-
+import mailer
 
 # TODO: Global config.
 DEFAULT_TIMEOUT = 600
@@ -21,6 +21,7 @@ class JobWrapper(object):
 
         self.name = self.config["name"]
         self.start_time = datetime.datetime.utcnow().isoformat()
+        self.mailer = mailer.Mailer(self.config)
 
         if "timeout" in self.config:
             self.timeout = self.config["timeout"]
@@ -61,16 +62,23 @@ class JobWrapper(object):
             self.fail_exitcode(return_code)
 
     def fail_exitcode(self, return_code):
-        print("Job {name} failed with code {code}".format(name=self.name, code=return_code), file=sys.stderr)
+        message = "Job {name} failed with code {code}".format(name=self.name, code=return_code)
+        print(message, file=sys.stderr)
         # TODO: Prevent future jobs according to config.
+        self.mailer.fail_mail(message)
 
     def fail_has_stderr(self, stderr_data):
-        print("Job {name} printed things to stderr:".format(name=self.name), file=sys.stderr)
-        print(stderr_data.decode("utf-8"), file=sys.stderr)
+        message = "Job {name} printed things to stderr:".format(name=self.name)
+        print(message, file=sys.stderr)
+        body = stderr_data.decode("utf-8")
+        print(body, file=sys.stderr)
+        self.mailer.fail_mail(message, body)
 
     def fail_timeout(self):
         self.process.kill()
-        print("Job {name} timed out after {timeout} seconds".format(name=self.name, timeout=self.timeout), file=sys.stderr)
+        message = "Job {name} timed out after {timeout} seconds".format(name=self.name, timeout=self.timeout)
+        print(message, file=sys.stderr)
+        self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
 
     def store_job_output(self, stdout_data):

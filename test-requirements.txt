@@ -1,3 +1,4 @@
 iocapture
+mock
 nose
 pytest
