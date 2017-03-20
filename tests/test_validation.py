@@ -1,7 +1,7 @@
 import nose
 import os
 
-import job_wrapper
+from processcontrol import job_wrapper
 
 
 data_dir = os.path.dirname(__file__) + "/data"

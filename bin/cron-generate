@@ -2,8 +2,8 @@
 
 import sys
 
-import crontab
-import job_wrapper
+import processcontrol.crontab
+import processcontrol.job_wrapper
 
 
 def usage():

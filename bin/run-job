@@ -2,7 +2,7 @@
 
 import sys
 
-import job_wrapper
+import processcontrol.job_wrapper
 
 
 def usage():
