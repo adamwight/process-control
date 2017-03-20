@@ -9,7 +9,7 @@ Running and configuration
 =======
 
 To run a job, point at its description file:
-    crash-override job-desc.yaml
+    run-job job-desc.yaml
 
 A job description file has the following format,
 
