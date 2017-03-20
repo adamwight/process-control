@@ -1,4 +1,4 @@
-python-process-control (0.0.1~rc1-1) UNRELEASED; urgency=low
+process-control (0.0.1~rc1-1) UNRELEASED; urgency=low
 
   * Initial release.
 
