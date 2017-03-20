@@ -2,8 +2,7 @@
 
 import sys
 
-import crontab
-import job_wrapper
+import processcontrol.crontab
 
 
 def usage():
@@ -19,4 +18,4 @@ if __name__ == "__main__":
 
 	config_dir = sys.argv[1]
 
-	print(crontab.make_cron(config_dir))
+	print(processcontrol.crontab.make_cron(config_dir))

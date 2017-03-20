@@ -1,6 +1,6 @@
 import os.path
 
-import crontab
+from processcontrol import crontab
 
 
 def test_crontab():

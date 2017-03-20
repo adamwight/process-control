@@ -2,7 +2,7 @@
 
 import sys
 
-import job_wrapper
+import processcontrol.job_wrapper
 
 
 def usage():
@@ -18,5 +18,5 @@ if __name__ == "__main__":
 
 	conf_file = sys.argv[1]
 
-	wrapper = job_wrapper.JobWrapper(config_path=conf_file)
+	wrapper = processcontrol.job_wrapper.JobWrapper(config_path=conf_file)
 	wrapper.run()

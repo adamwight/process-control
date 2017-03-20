@@ -1,7 +1,7 @@
 import nose
 import os.path
 
-import lock
+from processcontrol import lock
 
 
 def tearDown():
