@@ -1,6 +1,7 @@
 import os.path
 
 from processcontrol import crontab
+from processcontrol import config
 
 
 def test_crontab():
@@ -9,7 +10,8 @@ def test_crontab():
 
     # Strip regional variations.
     tab = tab.replace(test_conf_dir, "X")
-    tab = tab.replace(crontab.RUNNER_PATH, "Y")
+    configuration = config.GlobalConfiguration()
+    tab = tab.replace(configuration.get('runner_path'), "Y")
 
     expected = """# Skipping disabled job X/disabled.yaml
 # Generated from X/schedule_2.yaml

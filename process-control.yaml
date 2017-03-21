@@ -1,3 +1,14 @@
+cron_template: |
+        # Generated from {source}
+        {schedule} {user} {command}
+
+runner_path: /usr/bin/run-job
+
+user: jenkins
+
 default_job_config:
-    from_address: "Fail Mail <fr-tech@wikimedia.org>"
-    to_address: "fr-tech@wikimedia.org"
+    failmail:
+        from_address: "Fail Mail <fr-tech@wikimedia.org>"
+        to_address: "fr-tech@wikimedia.org"
+
+    timeout: 600

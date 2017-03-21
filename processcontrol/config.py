@@ -47,8 +47,6 @@ class GlobalConfiguration(Configuration):
             os.path.dirname(__file__) + "/../process-control.yaml",
             # machine config
             "/etc/fundraising/process-control.yaml",
-            # user config
-            os.path.expanduser("~/.fundraising/process-control.yaml")
         ]
 
     def load_global_config(self):

@@ -9,9 +9,6 @@ from . import config
 from . import lock
 from . import mailer
 
-# FIXME: move to global config
-DEFAULT_TIMEOUT = 600
-
 
 class JobWrapper(object):
     def __init__(self, config_path=None):
@@ -22,11 +19,7 @@ class JobWrapper(object):
         self.name = self.config.get("name")
         self.start_time = datetime.datetime.utcnow().isoformat()
         self.mailer = mailer.Mailer(self.config)
-
-        if self.config.has("timeout"):
-            self.timeout = self.config.get("timeout")
-        else:
-            self.timeout = DEFAULT_TIMEOUT
+        self.timeout = self.config.get("timeout")
 
         if self.config.has("disabled") and self.config.get("disabled") is True:
             self.enabled = False

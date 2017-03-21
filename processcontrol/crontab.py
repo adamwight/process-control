@@ -1,16 +1,6 @@
 import glob
-import os.path
 
 import job_wrapper
-
-# FIXME: Move to global config
-DEFAULT_USER = "jenkins"
-
-CRON_TEMPLATE = """# Generated from {source}
-{schedule} {user} {command}
-"""
-
-RUNNER_PATH = os.path.dirname(__file__) + "/crash-override"
 
 
 def make_cron(config_dir):
@@ -22,6 +12,7 @@ def make_cron(config_dir):
     config_files = sorted(glob.glob(config_dir + "/*.yaml"))
 
     for config_path in config_files:
+        # FIXME just use the configuration classes, no need for job
         job = job_wrapper.JobWrapper(config_path=config_path)
         tab = JobCrontab(job)
 
@@ -43,13 +34,15 @@ class JobCrontab(object):
             return "# Skipping disabled job {path}\n".format(path=self.job.config_path)
 
         command = "{runner} {conf}".format(
-            runner=RUNNER_PATH,
+            runner=self.job.global_config.get("runner_path"),
             conf=self.job.config_path)
 
-        out = CRON_TEMPLATE.format(
+        template = self.job.global_config.get("cron_template")
+
+        out = template.format(
             source=self.job.config_path,
             schedule=self.job.config.get("schedule"),
-            user=DEFAULT_USER,
+            user=self.job.global_config.get("user"),
             command=command)
 
         return out
