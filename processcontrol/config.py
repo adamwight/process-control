@@ -1,4 +1,4 @@
-import glob
+import copy
 import os
 import yaml
 
@@ -9,6 +9,13 @@ class Configuration():
         self.values = defaults
 
     def get(self, path, default=None):
+        """Get a value from configuration.
+        You can get a nested property by using a path delimited by
+        forward slashes (/).
+        If you provide a default value, it will be used when the
+        desired property does not exist. If there is no default,
+        trying to get a missing property raises a MissingKeyException.
+        """
         parts = path.split("/")
         current = self.values
 
@@ -21,6 +28,9 @@ class Configuration():
         return current
 
     def has(self, path):
+        """Test for existance of a property.
+        As with get(), use forward slashes to represent nested properties.
+        """
         try:
             self.get(path)
         except MissingKeyException:
@@ -50,11 +60,11 @@ class GlobalConfiguration(Configuration):
         ]
 
     def load_global_config(self):
-        # load configuration from global config paths
-        # later entries override earlier entries
-        for search_path in self.global_config_paths():
-            file_paths = glob.glob(search_path)
-            for file_path in file_paths:
+        """Load configuration from global config paths.
+        Later entries override earlier entries.
+        """
+        for file_path in self.global_config_paths():
+            if os.access(file_path, os.R_OK):
                 config = yaml.safe_load(open(file_path, "r"))
                 self.values.update(config)
 
@@ -63,7 +73,7 @@ class JobConfiguration(Configuration):
 
     def __init__(self, global_config, config_path):
         if global_config.has("default_job_config"):
-            defaults = global_config.get("default_job_config").copy()
+            defaults = copy.deepcopy(global_config.get("default_job_config"))
         else:
             defaults = {}
         Configuration.__init__(self, defaults)
