@@ -5,7 +5,6 @@ Self-corrects stale locks unless "failopen" is True.
 '''
 from __future__ import print_function
 import os
-import os.path
 import sys
 
 lockfile = None
@@ -17,13 +16,13 @@ def begin(filename=None, failopen=False, job_tag=None):
 
     if os.path.exists(filename):
         print("Lockfile found!", file=sys.stderr)
-        f = open(filename, "r")
-        pid = None
-        try:
-            pid = int(f.read())
-        except ValueError:
-            pass
-        f.close()
+        with open(filename, "r") as f:
+            pid = None
+            try:
+                pid = int(f.read())
+            except ValueError:
+                pass
+
         if not pid:
             print("Invalid lockfile contents.", file=sys.stderr)
         else:
@@ -37,9 +36,8 @@ def begin(filename=None, failopen=False, job_tag=None):
         print("Removing old lockfile.", file=sys.stderr)
         os.unlink(filename)
 
-    f = open(filename, "w")
-    f.write(str(os.getpid()))
-    f.close()
+    with open(filename, "w") as f:
+        f.write(str(os.getpid()))
 
     global lockfile
     lockfile = filename
