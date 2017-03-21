@@ -1,0 +1,3 @@
+default_job_config:
+    from_address: "Fail Mail <fr-tech@wikimedia.org>"
+    to_address: "fr-tech@wikimedia.org"

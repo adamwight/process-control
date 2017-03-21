@@ -4,12 +4,7 @@ import smtplib
 
 class Mailer(object):
     def __init__(self, config):
-        # defaults
-        self.config = {
-            "from_address": "Fail Mail <fr-tech@wikimedia.org>",
-            "to_address": "fr-tech@wikimedia.org"
-        }
-        self.config.update(config)
+        self.config = config
         # FIXME: this is set to ensure one failmail per instance. Should
         # do something more sophisticated to collect all calls and send
         # the mail before exiting.
@@ -22,13 +17,13 @@ class Mailer(object):
         msg = MIMEText(body)
 
         msg["Subject"] = "Fail Mail : " + subject
-        msg["From"] = self.config["from_address"]
-        msg["To"] = self.config["to_address"]
+        msg["From"] = self.config.get("from_address")
+        msg["To"] = self.config.get("to_address")
 
         mailer = smtplib.SMTP("localhost")
         mailer.sendmail(
-            self.config["from_address"],
-            self.config["to_address"],
+            self.config.get("from_address"),
+            self.config.get("to_address"),
             msg.as_string()
         )
         mailer.quit()

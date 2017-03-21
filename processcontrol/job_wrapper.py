@@ -4,42 +4,42 @@ import shlex
 import subprocess
 import sys
 import threading
-import yaml
 
-import lock
-import mailer
+from . import config
+from . import lock
+from . import mailer
 
-# TODO: Global config.
+# FIXME: move to global config
 DEFAULT_TIMEOUT = 600
 
 
 class JobWrapper(object):
     def __init__(self, config_path=None):
+        self.global_config = config.GlobalConfiguration()
         self.config_path = config_path
-        self.config = yaml.safe_load(open(config_path, "r"))
-        self.validate_config()
+        self.config = config.JobConfiguration(self.global_config, self.config_path)
 
-        self.name = self.config["name"]
+        self.name = self.config.get("name")
         self.start_time = datetime.datetime.utcnow().isoformat()
         self.mailer = mailer.Mailer(self.config)
 
-        if "timeout" in self.config:
-            self.timeout = self.config["timeout"]
+        if self.config.has("timeout"):
+            self.timeout = self.config.get("timeout")
         else:
             self.timeout = DEFAULT_TIMEOUT
 
-        if "disabled" in self.config and self.config["disabled"] is True:
+        if self.config.has("disabled") and self.config.get("disabled") is True:
             self.enabled = False
         else:
             self.enabled = True
 
-        if "schedule" not in self.config:
+        if not self.config.has("schedule"):
             self.enabled = False
 
     def run(self):
         lock.begin(job_tag=self.name)
 
-        command = shlex.split(self.config["command"])
+        command = shlex.split(self.config.get("command"))
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         timer = threading.Timer(self.timeout, self.fail_timeout)
@@ -82,10 +82,10 @@ class JobWrapper(object):
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
 
     def store_job_output(self, stdout_data):
-        if "stdout_destination" not in self.config:
+        if not self.config.has("stdout_destination"):
             return
 
-        destination = self.config["stdout_destination"]
+        destination = self.config.get("stdout_destination")
         out = open(destination, "a")
 
         header = (
@@ -96,16 +96,3 @@ class JobWrapper(object):
         print(header, file=out)
 
         out.write(stdout_data.decode("utf-8"))
-
-    def validate_config(self):
-        assert "name" in self.config
-        assert "command" in self.config
-        if "schedule" in self.config:
-            # No tricky assignments.
-            assert "=" not in self.config["schedule"]
-            # Legal cron, but I don't want to deal with it.
-            assert "@" not in self.config["schedule"]
-
-            # Be sure the schedule is valid.
-            terms = self.config["schedule"].split()
-            assert len(terms) == 5

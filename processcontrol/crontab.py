@@ -3,8 +3,7 @@ import os.path
 
 import job_wrapper
 
-
-# FIXME: global config
+# FIXME: Move to global config
 DEFAULT_USER = "jenkins"
 
 CRON_TEMPLATE = """# Generated from {source}
@@ -34,7 +33,7 @@ def make_cron(config_dir):
 class JobCrontab(object):
     def __init__(self, job=None):
         self.job = job
-        if "schedule" in job.config and job.enabled:
+        if job.config.has("schedule") and job.enabled:
             self.enabled = True
         else:
             self.enabled = False
@@ -49,7 +48,7 @@ class JobCrontab(object):
 
         out = CRON_TEMPLATE.format(
             source=self.job.config_path,
-            schedule=self.job.config["schedule"],
+            schedule=self.job.config.get("schedule"),
             user=DEFAULT_USER,
             command=command)
 
