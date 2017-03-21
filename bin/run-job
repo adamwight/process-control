@@ -1,22 +1,17 @@
 #!/usr/bin/python
 
+import argparse
 import sys
 
-import processcontrol.job_wrapper
-
-
-def usage():
-	print("Must give a job description file as the only argument.")
+from processcontrol import job_wrapper
 
 
 if __name__ == "__main__":
     # TODO: Parse CLI args and use to override the config file.
 
-	if len(sys.argv) != 2:
-		usage()
-		sys.exit(-1)
+	parser = argparse.ArgumentParser(description="Run the given job specification.")
+	parser.add_argument("-f", "--job-file", help="Job specification file", type=str, required=True)
+	args = parser.parse_args()
 
-	conf_file = sys.argv[1]
-
-	wrapper = processcontrol.job_wrapper.JobWrapper(config_path=conf_file)
+	wrapper = job_wrapper.JobWrapper(config_path=args.job_file)
 	wrapper.run()

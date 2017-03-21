@@ -1,1 +1,2 @@
+argparse # transitional 2->3 package
 pyyaml
