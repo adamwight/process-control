@@ -8,11 +8,7 @@ distutils.core.setup(
     author='Adam Roses Wight',
     author_email='awight@wikimedia.org',
     url='https://github.com/adamwight/process-control',
-    py_modules=[
-        'crontab',
-        'job_wrapper',
-        'lock',
-    ],
+    packages=['processcontrol'],
     scripts=[
         'bin/cron-generate',
         'bin/run-job',

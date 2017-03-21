@@ -2,15 +2,15 @@ Source: process-control
 Maintainer: Adam Roses Wight <awight@wikimedia.org>
 Section: admin
 Priority: optional
-Build-Depends: debhelper (>= 9), python3-all, python3-setuptools
+Build-Depends: debhelper (>= 9), dh-python, python-all, python-setuptools
 Standards-Version: 3.9.8
 Homepage: https://github.com/adamwight/process-control
 Vcs-Browser: https://github.com/adamwight/process-control
 Vcs-Git: git://github.com/adamwight/process-control.git
-X-Python3-Version: >= 3.2
+X-Python-Version: >= 2.7
 
 Package: process-control
 Architecture: all
-Depends: ${python3:Depends}, python3-yaml
+Depends: ${python:Depends}, python-yaml
 Description: Tools for Wikimedia Foundation Fundraising job management
  Control and schedule jobs using configuration files.
