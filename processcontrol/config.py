@@ -80,12 +80,17 @@ class JobConfiguration(Configuration):
 
     def validate_job_config(self):
         assert "name" in self.values
+
         assert "command" in self.values
+        assert "\n" not in self.values["command"]
+
         if "schedule" in self.values:
             # No tricky assignments.
             assert "=" not in self.values["schedule"]
             # Legal cron, but I don't want to deal with it.
             assert "@" not in self.values["schedule"]
+            # No line breaks
+            assert "\n" not in self.values["schedule"]
 
             # Be sure the schedule is valid.
             terms = self.values["schedule"].split()
