@@ -8,22 +8,19 @@ class Configuration():
     def __init__(self, defaults={}):
         self.values = defaults
 
-    def get(self, path, default=None):
+    def get(self, path):
         """Get a value from configuration.
         You can get a nested property by using a path delimited by
-        forward slashes (/).
-        If you provide a default value, it will be used when the
-        desired property does not exist. If there is no default,
-        trying to get a missing property raises a MissingKeyException.
+        forward slashes (/), for example "failmail/from-address".
+
+        Trying to get a missing property raises a MissingKeyException.
         """
         parts = path.split("/")
         current = self.values
 
         for part in parts:
             if part not in current:
-                if default is None:
-                    raise MissingKeyException(path)
-                return default
+                raise MissingKeyException(path)
             current = current[part]
         return current
 
