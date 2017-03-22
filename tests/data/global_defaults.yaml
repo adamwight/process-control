@@ -1,0 +1,26 @@
+# This is how each of your jobs will be formatted by cron-generate.
+cron_template: |
+        # Generated from {source}
+        {schedule} {user} {command}
+
+# Absolute path to the job harness.
+runner_path: /usr/bin/run-job
+
+# Cron will setuid to this user before running the command.  Only use service
+# accounts, never privileged ones.
+user: jenkins
+
+# Default values used when the job description doesn't have these keys.  See
+# the README for a discussion of how to configure jobs.
+default_job_config:
+    failmail:
+        from_address: "Fail Mail <fr-tech@wikimedia.org>"
+        to_address: "fr-tech@wikimedia.org"
+
+    timeout: 600
+
+# Output directory for job output and errors.  A timestamped log file is
+# written for each run, like:
+#    /var/log/process-control/jobname-20170401-235959.log
+#
+output_directory: /tmp

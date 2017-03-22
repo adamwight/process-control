@@ -1,6 +1,6 @@
 import glob
 
-import job_wrapper
+from . import job_wrapper
 
 
 def make_cron(config_dir):

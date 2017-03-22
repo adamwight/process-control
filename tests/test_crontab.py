@@ -4,6 +4,12 @@ from processcontrol import crontab
 from processcontrol import config
 
 
+def setup_module():
+    from processcontrol import config
+    data_dir = os.path.dirname(__file__) + "/data"
+    config.GlobalConfiguration.global_config_path = data_dir + "/global_defaults.yaml"
+
+
 def test_crontab():
     test_conf_dir = os.path.dirname(__file__) + "/data/scheduled"
     tab = crontab.make_cron(test_conf_dir)

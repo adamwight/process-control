@@ -5,17 +5,24 @@ Job wrapper which does a bit of bookkeeping for a subprocess.
 * Captures stdout and stderr.  We can redirect stdout to a
 file.  Any stderr is interpreted as a job failure.
 
-Running and configuration
+Configuration
 =======
 
-To run a job, point at its description file:
-    run-job job-desc.yaml
+Global configuration must be created before you can run jobs (FIXME: works out
+of the box).  Copy the file /usr/share/doc/process-control/process-control.example.yaml
+to /etc/fundraising/process-control.yaml
+
+Job descriptions
+=======
 
 A job description file has the following format,
 
 ```yaml
 name: Take This Job and Shove It
 
+# The commandline that will be run.  This is executed from Python and not from
+# a shell, so globbing and other trickery will not work.  Please give a full
+# path to the executable.
 command: /usr/local/bin/timecard --start 9:00 --end 5:30
 
 # Optional schedule, in Vixie cron format:
@@ -29,11 +36,12 @@ disabled: true
 # Optional timeout in seconds, after which your job will be
 # aborted.  Defaults to 10 minutes, JobWrapper.DEFAULT_TIMEOUT
 timeout: 30
-
-# Optional filename for the job output.  All output will be
-# concatenated into this file, with a header for each job.
-stdout_destination: "/tmp/jobnuts.log"
 ```
+
+Running
+=======
+To run a job, point at its description file:
+    run-job job-desc.yaml
 
 Failure detection
 ======
@@ -56,7 +64,6 @@ TODO
 * Prevent future job runs when unrecoverable failure conditions are detected.
 * Should we support commandline flags?
 * Fine-tuning of failure detection.
-* Script to tweeze crontab.
 * Script to kill jobs.
 * Script to run a job one-off.
 * Job group tags.

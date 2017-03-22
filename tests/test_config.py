@@ -48,7 +48,7 @@ def test_defaults():
     global_configuration = config.Configuration({
         "default_job_config": {
             "from_address": "they@live.com",
-            "to_address": "roddy@pipermail.net"
+            "to_address": "roddy@pipermail.net",
         }
     })
     configuration = load_config("schedule_good.yaml", global_configuration)

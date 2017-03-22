@@ -1,5 +1,6 @@
 from __future__ import print_function
 import datetime
+import os
 import shlex
 import subprocess
 import sys
@@ -17,7 +18,7 @@ class JobWrapper(object):
         self.config = config.JobConfiguration(self.global_config, self.config_path)
 
         self.name = self.config.get("name")
-        self.start_time = datetime.datetime.utcnow().isoformat()
+        self.start_time = datetime.datetime.utcnow()
         self.mailer = mailer.Mailer(self.config)
         self.timeout = self.config.get("timeout")
 
@@ -42,7 +43,7 @@ class JobWrapper(object):
             # FIXME: This doesn't stream, so large output will be buffered in memory.
             (stdout_data, stderr_data) = self.process.communicate()
 
-            self.store_job_output(stdout_data)
+            self.store_job_output(stdout_data, stderr_data)
 
             if len(stderr_data) > 0:
                 self.fail_has_stderr(stderr_data)
@@ -74,18 +75,36 @@ class JobWrapper(object):
         self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
 
-    def store_job_output(self, stdout_data):
-        if not self.config.has("stdout_destination"):
-            return
+    def store_job_output(self, stdout_data, stderr_data):
+        output_directory = self.global_config.get("output_directory")
+        assert os.access(output_directory, os.W_OK)
 
-        destination = self.config.get("stdout_destination")
-        out = open(destination, "a")
+        job_directory = output_directory + "/" + self.name
+        if not os.path.exists(job_directory):
+            os.makedirs(job_directory)
 
-        header = (
-            "===========\n"
-            "{name} ({pid}), started at {time}\n"
-            "-----------\n"
-        ).format(name=self.name, pid=self.process.pid, time=self.start_time)
-        print(header, file=out)
+        timestamp = self.start_time.strftime("%Y%m%d-%H%M%S")
+        filename = "{logdir}/{name}-{timestamp}.log".format(logdir=job_directory, name=self.name, timestamp=timestamp)
+        with open(filename, "a") as out:
+            header = (
+                "===========\n"
+                "{name} ({pid}), started at {time}\n"
+                "-----------\n"
+            ).format(name=self.name, pid=self.process.pid, time=self.start_time.isoformat())
+            print(header, file=out)
 
-        out.write(stdout_data.decode("utf-8"))
+            if len(stdout_data) == 0:
+                buf = "* No output *\n"
+            else:
+                buf = stdout_data.decode("utf-8")
+            out.write(buf)
+
+            if len(stderr_data) > 0:
+                header = (
+                    "-----------\n",
+                    "Even worse, the job emitted errors:\n",
+                    "-----------\n",
+                )
+                print(header, file=out)
+
+                out.write(stderr_data.decode("utf-8"))

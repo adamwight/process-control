@@ -1,5 +1,6 @@
-from mock import patch
+import glob
 import iocapture
+import mock
 import nose
 import os
 
@@ -7,6 +8,11 @@ from processcontrol import job_wrapper
 
 
 data_dir = os.path.dirname(__file__) + "/data"
+
+
+def setup_module():
+    from processcontrol import config
+    config.GlobalConfiguration.global_config_path = data_dir + "/global_defaults.yaml"
 
 
 def run_job(filename):
@@ -24,7 +30,7 @@ def test_success():
         assert captured.stderr == ""
 
 
-@patch("smtplib.SMTP")
+@mock.patch("smtplib.SMTP")
 def test_return_code(MockSmtp):
     expected = "Job False job failed with code 1\n"
     with iocapture.capture() as captured:
@@ -38,7 +44,7 @@ def test_return_code(MockSmtp):
 
 # Must finish in less than two seconds, i.e. must have timed out.
 @nose.tools.timed(2)
-@patch("smtplib.SMTP")
+@mock.patch("smtplib.SMTP")
 def test_timeout(MockSmtp):
     with iocapture.capture() as captured:
         run_job("timeout.yaml")
@@ -52,7 +58,7 @@ def test_timeout(MockSmtp):
     MockSmtp().sendmail.assert_called_once()
 
 
-@patch("smtplib.SMTP")
+@mock.patch("smtplib.SMTP")
 def test_stderr(MockSmtp):
     with iocapture.capture() as captured:
         run_job("errors.yaml")
@@ -68,13 +74,13 @@ def test_stderr(MockSmtp):
 
 
 def test_store_output():
-    path = "/tmp/which_out.log"
-
-    if os.path.exists(path):
-        os.unlink(path)
+    path_glob = "/tmp/Which job/Which job*.log"
 
     run_job("which_out.yaml")
 
+    log_files = sorted(glob.glob(path_glob))
+    assert len(log_files) == 1
+    path = log_files[-1]
     contents = open(path, "r").read()
     lines = contents.split("\n")
 

@@ -43,27 +43,28 @@ class MissingKeyException(Exception):
 
 
 class GlobalConfiguration(Configuration):
+    global_config_path = "/etc/fundraising/process-control.yaml"
 
     def __init__(self):
         Configuration.__init__(self)
         self.load_global_config()
 
-    def global_config_paths(self):
-        return [
-            # built-in defaults
-            os.path.dirname(__file__) + "/../process-control.yaml",
-            # machine config
-            "/etc/fundraising/process-control.yaml",
-        ]
-
     def load_global_config(self):
         """Load configuration from global config paths.
         Later entries override earlier entries.
         """
-        for file_path in self.global_config_paths():
-            if os.access(file_path, os.R_OK):
-                config = yaml.safe_load(open(file_path, "r"))
-                self.values.update(config)
+        file_path = GlobalConfiguration.global_config_path
+        if os.access(file_path, os.R_OK):
+            config = yaml.safe_load(open(file_path, "r"))
+            self.values.update(config)
+
+        self.validate_global_config()
+
+    def validate_global_config(self):
+        assert "cron_template" in self.values
+        assert "output_directory" in self.values
+        assert "runner_path" in self.values
+        assert "user" in self.values
 
 
 class JobConfiguration(Configuration):
