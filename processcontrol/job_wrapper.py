@@ -30,12 +30,17 @@ class JobWrapper(object):
         if not self.config.has("schedule"):
             self.enabled = False
 
+        if self.config.has("environment"):
+            self.environment = self.config.get("environment")
+        else:
+            self.environment = {}
+
     def run(self):
         lock.begin(job_tag=self.name)
 
         command = shlex.split(self.config.get("command"))
 
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
         timer = threading.Timer(self.timeout, self.fail_timeout)
         timer.start()
 

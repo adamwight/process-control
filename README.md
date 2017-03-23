@@ -36,6 +36,10 @@ disabled: true
 # Optional timeout in seconds, after which your job will be
 # aborted.  Defaults to 10 minutes, JobWrapper.DEFAULT_TIMEOUT
 timeout: 30
+
+# Optional environment variables.
+environment:
+	PYTHONPATH: /usr/share/invisible/pie
 ```
 
 Running
