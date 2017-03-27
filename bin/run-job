@@ -1,15 +1,32 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import argparse
 import sys
+import yaml
 
 from processcontrol import job_wrapper
 
 
+def list_jobs():
+	for job_name in job_wrapper.list():
+		job = job_wrapper.load(job_name)
+		message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
+		status = job.status()
+		if status is not None:
+			message += "    " + yaml.dump(status)
+		print(message)
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Run and maintain process-control jobs.")
-	parser.add_argument("-j", "--job", help="Run a given job", type=str)
+	parser.add_argument("-j", "--job", help="Run a given job.", type=str)
+	parser.add_argument("--list-jobs", help="Print a summary of available jobs.", action='store_true')
 	args = parser.parse_args()
 
-	wrapper = job_wrapper.load(args.job)
-	wrapper.run()
+	if args.job:
+		job = job_wrapper.load(args.job)
+		job.run()
+
+	if args.list_jobs:
+		list_jobs()

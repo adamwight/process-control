@@ -131,3 +131,21 @@ class JobWrapper(object):
                 out.write(header)
 
                 out.write(stderr_data.decode("utf-8"))
+
+    def status(self):
+        """Check for any running instances of this job, in this process or another.
+
+        Returns a crappy dict, or None if no process is found.
+
+        Do not use this function to gate the workflow, explicitly assert the
+        lock instead."""
+
+        # FIXME: DRY
+        lock_path = "/tmp/{name}.lock".format(name=self.slug)
+        if os.path.exists(lock_path):
+            with open(lock_path, "r") as f:
+                pid = int(f.read().strip())
+                # TODO: encapsulate
+                return {"status": "running", "pid": pid}
+
+        return None
