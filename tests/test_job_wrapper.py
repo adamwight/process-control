@@ -79,12 +79,34 @@ def test_store_output():
     run_job("which_out.yaml")
 
     log_files = sorted(glob.glob(path_glob))
-    assert len(log_files) == 1
     path = log_files[-1]
     contents = open(path, "r").read()
     lines = contents.split("\n")
 
     assert len(lines) == 6
     assert lines[4] == "/bin/bash"
+
+    os.unlink(path)
+
+
+def test_environment():
+    path_glob = "/tmp/Env dumper/Env dumper*.log"
+
+    run_job("env.yaml")
+
+    log_files = sorted(glob.glob(path_glob))
+    path = log_files[-1]
+    contents = open(path, "r").read()
+    lines = contents.split("\n")
+    print(lines)
+
+    assert len(lines) == 7
+
+    dumped_env = sorted(lines[4:6])
+    expected = [
+        "foo1=bar",
+        "foo2=rebar",
+    ]
+    assert expected == dumped_env
 
     os.unlink(path)
