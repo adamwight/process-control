@@ -19,6 +19,15 @@ default_job_config:
 
     timeout: 600
 
+job_directory: /var/lib/process-control
+
+# Output file path.
+#
+# Magic string "console" will send the crontab to stdout.
+#output_crontab: console
+#
+output_crontab: /etc/cron.d/process-control
+
 # Log directory for job output and errors.  A timestamped log file is written
 # for each run, like:
 #    /var/log/process-control/jobname/jobname-20170401-235959.log

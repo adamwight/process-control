@@ -6,15 +6,22 @@ import os
 
 from processcontrol import job_wrapper
 
+from . import override_config
+
 
 data_dir = os.path.dirname(__file__) + "/data"
 
 
 def setup_module():
-    from processcontrol import config
-    config.GlobalConfiguration.global_config_path = data_dir + "/global_defaults.yaml"
+    override_config.start()
 
 
+def teardown_module():
+    override_config.stop()
+
+
+# TODO: better package per-test-module job bundles, and give job_name rather
+# than filename.
 def run_job(filename):
     path = data_dir + "/" + filename
     job = job_wrapper.JobWrapper(config_path=path)

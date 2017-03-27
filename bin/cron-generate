@@ -1,23 +1,9 @@
 #!/usr/bin/python
 
-from __future__ import print_function
-import argparse
 import sys
 
 from processcontrol import crontab
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a crontab from a directory of schedulable jobs.")
-    # TODO: Get defaults from config.
-    parser.add_argument("-d", "--job-directory", help="Job specification directory", type=str, required=True)
-    parser.add_argument("-O", "--output-file", help="Crontab output path", type=str)
-    args = parser.parse_args()
-
-    if args.output_file and args.output_file != "-":
-        out = open(args.output_file, "w")
-    else:
-        out = sys.stdout
-
-    cron_text = crontab.make_cron(args.job_directory)
-    print(cron_text, file=out)
+    crontab.make_cron()

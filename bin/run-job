@@ -7,11 +7,9 @@ from processcontrol import job_wrapper
 
 
 if __name__ == "__main__":
-    # TODO: Parse CLI args and use to override the config file.
-
-	parser = argparse.ArgumentParser(description="Run the given job specification.")
-	parser.add_argument("-f", "--job-file", help="Job specification file", type=str, required=True)
+	parser = argparse.ArgumentParser(description="Run and maintain process-control jobs.")
+	parser.add_argument("-j", "--job", help="Run a given job", type=str)
 	args = parser.parse_args()
 
-	wrapper = job_wrapper.JobWrapper(config_path=args.job_file)
+	wrapper = job_wrapper.load(args.job)
 	wrapper.run()

@@ -1,24 +1,31 @@
-import glob
+from __future__ import print_function
 
+from . import config
 from . import job_wrapper
 
 
-def make_cron(config_dir):
+def make_cron():
     '''
     Read all files from the dir and output a crontab.
     '''
-    out = ""
 
-    config_files = sorted(glob.glob(config_dir + "/*.yaml"))
+    jobs = job_wrapper.list()
+    cron_text = ""
 
-    for config_path in config_files:
+    for job_name in jobs:
         # FIXME just use the configuration classes, no need for job
-        job = job_wrapper.JobWrapper(config_path=config_path)
+        job = job_wrapper.load(job_name)
         tab = JobCrontab(job)
 
-        out += str(tab)
+        cron_text += str(tab)
 
-    return out
+    global_config = config.GlobalConfiguration()
+    output_file = global_config.get("output_crontab")
+    if output_file == 'console':
+        print(cron_text)
+    else:
+        with open(output_file, "w") as out:
+            out.write(cron_text)
 
 
 class JobCrontab(object):
@@ -31,11 +38,11 @@ class JobCrontab(object):
 
     def __str__(self):
         if not self.enabled:
-            return "# Skipping disabled job {path}\n".format(path=self.job.config_path)
+            return "# Skipping disabled job {name}\n".format(name=self.job.slug)
 
-        command = "{runner} {conf}".format(
+        command = "{runner} {name}".format(
             runner=self.job.global_config.get("runner_path"),
-            conf=self.job.config_path)
+            name=self.job.slug)
 
         template = self.job.global_config.get("cron_template")
 

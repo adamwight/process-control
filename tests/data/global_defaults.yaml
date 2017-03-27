@@ -19,6 +19,10 @@ default_job_config:
 
     timeout: 600
 
+# NOTE: `job_directory` is calculated by test setup.
+
+output_crontab: /tmp/cronout.tab
+
 # Output directory for job output and errors.  A timestamped log file is
 # written for each run, like:
 #    /var/log/process-control/jobname-20170401-235959.log

@@ -101,6 +101,7 @@ class JobWrapper(object):
         output_directory = self.global_config.get("output_directory")
         assert os.access(output_directory, os.W_OK)
 
+        # per-job directory
         job_directory = output_directory + "/" + self.name
         if not os.path.exists(job_directory):
             os.makedirs(job_directory)

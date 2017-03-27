@@ -44,8 +44,13 @@ environment:
 
 Running
 =======
-To run a job, point at its description file:
-    run-job job-desc.yaml
+Jobs can be run by name,
+    run-job job-a-thon
+which will look for a job configuration in `/var/lib/process-control/job-a-thon.yaml`.
+
+Some actions are shoehorned in, and can be accessed like:
+    run-job --list-jobs
+	run-job --kill-job job-a-thon
 
 Failure detection
 ======
@@ -66,10 +71,7 @@ TODO
 * Syslog actions, at least when tweezing new crontabs.
 * Log invocations.
 * Prevent future job runs when unrecoverable failure conditions are detected.
-* Should we support commandline flags?
 * Fine-tuning of failure detection.
-* Script to kill jobs.
-* Script to run a job one-off.
 * Job group tags.
 * Slow-start and monitoring.
 * Optional backoff.
