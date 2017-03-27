@@ -1,5 +1,10 @@
 *.pyc
+build
 .cache
 cover
 .coverage
 .tox
+
+debian/debhelper-build-stamp
+debian/files
+debian/process-control*
