@@ -29,12 +29,12 @@ def test_success():
 
 
 @mock.patch("smtplib.SMTP")
-def test_return_code(MockSmtp):
-    with testfixtures.LogCapture() as caplog:
-        run_job("return_code")
+@testfixtures.log_capture()
+def test_return_code(MockSmtp, caplog):
+    run_job("return_code")
 
-        loglines = caplog.actual()
-        assert ("root", "ERROR", "Job False job failed with code 1") in loglines
+    loglines = caplog.actual()
+    assert ("root", "ERROR", "Job False job failed with code 1") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
@@ -42,26 +42,26 @@ def test_return_code(MockSmtp):
 # Must finish in less than two seconds, i.e. must have timed out.
 @nose.tools.timed(2)
 @mock.patch("smtplib.SMTP")
-def test_timeout(MockSmtp):
-    with testfixtures.LogCapture() as caplog:
-        run_job("timeout")
+@testfixtures.log_capture()
+def test_timeout(MockSmtp, caplog):
+    run_job("timeout")
 
-        loglines = caplog.actual()
-        assert ("root", "ERROR", "Job Timing out job timed out after 0.1 seconds") in loglines
-        assert ("root", "ERROR", "Job Timing out job failed with code -9") in loglines
+    loglines = caplog.actual()
+    assert ("root", "ERROR", "Job Timing out job timed out after 0.1 seconds") in loglines
+    assert ("root", "ERROR", "Job Timing out job failed with code -9") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
 
 @mock.patch("smtplib.SMTP")
-def test_stderr(MockSmtp):
-    with testfixtures.LogCapture() as caplog:
-        run_job("errors")
+@testfixtures.log_capture()
+def test_stderr(MockSmtp, caplog):
+    run_job("errors")
 
-        loglines = list(caplog.actual())
-        assert ("root", "ERROR", "Job Bad grep job printed things to stderr:") in loglines
-        assert ("root", "ERROR", "grep: Invalid regular expression\n") in loglines
-        assert ("root", "ERROR", "Job Bad grep job failed with code 2") in loglines
+    loglines = list(caplog.actual())
+    assert ("root", "ERROR", "Job Bad grep job printed things to stderr:") in loglines
+    assert ("root", "ERROR", "grep: Invalid regular expression\n") in loglines
+    assert ("root", "ERROR", "Job Bad grep job failed with code 2") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
