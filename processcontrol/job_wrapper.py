@@ -1,5 +1,6 @@
 from __future__ import print_function
 import datetime
+import glob
 import os
 import shlex
 import subprocess
@@ -11,13 +12,29 @@ from . import lock
 from . import mailer
 
 
+def load(job_name):
+    job_directory = config.GlobalConfiguration().get("job_directory")
+    job_path = "{job_dir}/{job_name}.yaml".format(job_dir=job_directory, job_name=job_name)
+    return JobWrapper(config_path=job_path, slug=job_name)
+
+
+def list():
+    """Return a tuple of all available job names."""
+    job_directory = config.GlobalConfiguration().get("job_directory")
+    paths = sorted(glob.glob(job_directory + "/*.yaml"))
+    file_names = [os.path.basename(p) for p in paths]
+    job_names = [f.replace(".yaml", "") for f in file_names]
+    return job_names
+
+
 class JobWrapper(object):
-    def __init__(self, config_path=None):
+    def __init__(self, config_path=None, slug=None):
         self.global_config = config.GlobalConfiguration()
         self.config_path = config_path
         self.config = config.JobConfiguration(self.global_config, self.config_path)
 
         self.name = self.config.get("name")
+        self.slug = slug
         self.start_time = datetime.datetime.utcnow()
         self.mailer = mailer.Mailer(self.config)
         self.timeout = self.config.get("timeout")
