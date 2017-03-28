@@ -21,6 +21,8 @@ def make_cron():
 
     global_config = config.GlobalConfiguration()
     output_file = global_config.get("output_crontab")
+    config.log.info("Writing crontab to {out}".format(out=output_file))
+
     if output_file == 'console':
         print(cron_text)
     else:

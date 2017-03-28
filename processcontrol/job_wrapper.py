@@ -53,6 +53,8 @@ class JobWrapper(object):
     def run(self):
         lock.begin(job_tag=self.name)
 
+        config.log.info("Running job {name} ({slug})".format(name=self.name, slug=self.slug))
+
         command = shlex.split(self.config.get("command"))
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
