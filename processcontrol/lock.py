@@ -3,9 +3,8 @@ Lockfile using a temporary file and the process id.
 
 Self-corrects stale locks unless "failopen" is True.
 '''
-from __future__ import print_function
+import config
 import os
-import sys
 
 lockfile = None
 
@@ -15,7 +14,7 @@ def begin(filename=None, failopen=False, job_tag=None):
         filename = "/tmp/{name}.lock".format(name=job_tag)
 
     if os.path.exists(filename):
-        print("Lockfile found!", file=sys.stderr)
+        config.log.error("Lockfile found!")
         with open(filename, "r") as f:
             pid = None
             try:
@@ -24,7 +23,7 @@ def begin(filename=None, failopen=False, job_tag=None):
                 pass
 
         if not pid:
-            print("Invalid lockfile contents.", file=sys.stderr)
+            config.log.error("Invalid lockfile contents.")
         else:
             try:
                 os.getpgid(pid)
@@ -32,11 +31,12 @@ def begin(filename=None, failopen=False, job_tag=None):
             except OSError:
                 if failopen:
                     raise LockError("Aborting until stale lockfile is investigated: {path}".format(path=filename))
-                print("Lockfile is stale.", file=sys.stderr)
-        print("Removing old lockfile.", file=sys.stderr)
+                config.log.error("Lockfile is stale.")
+        config.log.error("Removing old lockfile.")
         os.unlink(filename)
 
     with open(filename, "w") as f:
+        config.log.info("Writing lockfile.")
         f.write(str(os.getpid()))
 
     global lockfile
@@ -46,6 +46,7 @@ def begin(filename=None, failopen=False, job_tag=None):
 def end():
     global lockfile
     if lockfile and os.path.exists(lockfile):
+        config.log.info("Clearing lockfile.")
         os.unlink(lockfile)
     else:
         raise LockError("Already unlocked!")

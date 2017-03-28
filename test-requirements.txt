@@ -1,5 +1,5 @@
-iocapture
 mock
 nose
-pytest
 nose-cov
+pytest
+testfixtures

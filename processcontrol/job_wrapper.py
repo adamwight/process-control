@@ -1,10 +1,8 @@
-from __future__ import print_function
 import datetime
 import glob
 import os
 import shlex
 import subprocess
-import sys
 import threading
 
 from . import config
@@ -79,21 +77,21 @@ class JobWrapper(object):
 
     def fail_exitcode(self, return_code):
         message = "Job {name} failed with code {code}".format(name=self.name, code=return_code)
-        print(message, file=sys.stderr)
+        config.log.error(message)
         # TODO: Prevent future jobs according to config.
         self.mailer.fail_mail(message)
 
     def fail_has_stderr(self, stderr_data):
         message = "Job {name} printed things to stderr:".format(name=self.name)
-        print(message, file=sys.stderr)
+        config.log.error(message)
         body = stderr_data.decode("utf-8")
-        print(body, file=sys.stderr)
+        config.log.error(body)
         self.mailer.fail_mail(message, body)
 
     def fail_timeout(self):
         self.process.kill()
         message = "Job {name} timed out after {timeout} seconds".format(name=self.name, timeout=self.timeout)
-        print(message, file=sys.stderr)
+        config.log.error(message)
         self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
 
@@ -114,7 +112,7 @@ class JobWrapper(object):
                 "{name} ({pid}), started at {time}\n"
                 "-----------\n"
             ).format(name=self.name, pid=self.process.pid, time=self.start_time.isoformat())
-            print(header, file=out)
+            out.write(header)
 
             if len(stdout_data) == 0:
                 buf = "* No output *\n"
@@ -124,10 +122,10 @@ class JobWrapper(object):
 
             if len(stderr_data) > 0:
                 header = (
-                    "-----------\n",
-                    "Even worse, the job emitted errors:\n",
-                    "-----------\n",
+                    "-----------\n"
+                    "Even worse, the job emitted errors:\n"
+                    "-----------\n"
                 )
-                print(header, file=out)
+                out.write(header)
 
                 out.write(stderr_data.decode("utf-8"))
