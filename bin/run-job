@@ -10,11 +10,14 @@ from processcontrol import job_wrapper
 
 def list_jobs():
 	for job_name in job_wrapper.list():
-		job = job_wrapper.load(job_name)
-		message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
-		status = job.status()
-		if status is not None:
-			message += "    " + yaml.dump(status)
+		try:
+			job = job_wrapper.load(job_name)
+			message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
+			status = job.status()
+			if status is not None:
+				message += "    " + yaml.dump(status)
+		except AssertionError:
+			message = "{job} ***Invalid configuration***".format(job=job_name)
 		print(message)
 
 
