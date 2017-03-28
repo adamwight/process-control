@@ -1,9 +1,35 @@
 import copy
+import logging
 import os
 import yaml
 
 
 CONFIG_PATH = "/etc/process-control.yaml"
+
+# FIXME: Offload responsibility for logging.
+log = None
+
+
+def setup_logging(global_config=None):
+    global log
+
+    if log is not None:
+        # Already initialized.
+        return
+
+    if global_config is None:
+        global_config = GlobalConfiguration()
+
+    if global_config.has("logging"):
+        # Configure from global config.
+        log_config = global_config.get("logging")
+        logging.config.dictConfig(log_config)
+        log = logging.getLogger("process-control")
+        log.info("Configured logging.")
+        log.debug(log_config)
+    else:
+        # Set to the root logger.
+        log = logging.getLogger()
 
 
 class Configuration():
@@ -49,6 +75,9 @@ class GlobalConfiguration(Configuration):
     def __init__(self):
         Configuration.__init__(self)
         self.load_global_config()
+
+        # Semi-opportunistic place to initialize logging.
+        setup_logging(self)
 
     def load_global_config(self):
         """Load configuration from global config paths.

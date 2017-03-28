@@ -40,3 +40,5 @@ class OverrideConfiguration(config.GlobalConfiguration):
         test_config = yaml.safe_load(open(self.config_path, "r"))
         self.values.update(test_config)
         self.values.update(self.extra)
+
+        config.setup_logging(self)

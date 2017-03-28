@@ -1,7 +1,12 @@
 import nose
 import os.path
 
+from processcontrol import config
 from processcontrol import lock
+
+
+def setup_module():
+    config.setup_logging()
 
 
 def tearDown():
