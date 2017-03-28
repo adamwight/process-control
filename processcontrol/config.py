@@ -108,6 +108,7 @@ class JobConfiguration(Configuration):
             defaults = {}
         Configuration.__init__(self, defaults)
         self.values.update(yaml.safe_load(open(config_path, "r")))
+        # TODO: Catch and interpret errors.
         self.validate_job_config()
 
     def validate_job_config(self):

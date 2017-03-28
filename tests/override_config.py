@@ -6,7 +6,7 @@ from processcontrol import config
 
 
 data_dir = os.path.dirname(__file__) + "/data"
-DEFAULT_TEST_CONFIG = data_dir + "/global_defaults.yaml"
+DEFAULT_TEST_CONFIG = data_dir + "/global_config/global_defaults.yaml"
 
 patcher = None
 
@@ -18,15 +18,19 @@ def start(config_path=DEFAULT_TEST_CONFIG, job_subdir=None, extra={}):
 
     if job_subdir is not None:
         extra["job_directory"] = data_dir + "/" + job_subdir
+    elif "job_directory" not in extra:
+        extra["job_directory"] = data_dir
 
     OverrideConfiguration.extra = extra
 
     global patcher
+    # TODO: assert unpatched
     patcher = mock.patch('processcontrol.config.GlobalConfiguration', wraps=OverrideConfiguration)
     patcher.start()
 
 
 def stop():
+    global patcher
     patcher.stop()
 
 

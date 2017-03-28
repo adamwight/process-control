@@ -9,9 +9,6 @@ from processcontrol import job_wrapper
 from . import override_config
 
 
-data_dir = os.path.dirname(__file__) + "/data"
-
-
 def setup_module():
     override_config.start()
 
@@ -20,17 +17,13 @@ def teardown_module():
     override_config.stop()
 
 
-# TODO: better package per-test-module job bundles, and give job_name rather
-# than filename.
-def run_job(filename):
-    path = data_dir + "/" + filename
-    job = job_wrapper.JobWrapper(config_path=path)
-
+def run_job(job_name):
+    job = job_wrapper.load(job_name)
     job.run()
 
 
 def test_success():
-    run_job("successful.yaml")
+    run_job("successful")
 
     # TODO: assert more
 
@@ -38,7 +31,7 @@ def test_success():
 @mock.patch("smtplib.SMTP")
 def test_return_code(MockSmtp):
     with testfixtures.LogCapture() as caplog:
-        run_job("return_code.yaml")
+        run_job("return_code")
 
         loglines = caplog.actual()
         assert ("root", "ERROR", "Job False job failed with code 1") in loglines
@@ -51,7 +44,7 @@ def test_return_code(MockSmtp):
 @mock.patch("smtplib.SMTP")
 def test_timeout(MockSmtp):
     with testfixtures.LogCapture() as caplog:
-        run_job("timeout.yaml")
+        run_job("timeout")
 
         loglines = caplog.actual()
         assert ("root", "ERROR", "Job Timing out job timed out after 0.1 seconds") in loglines
@@ -63,7 +56,7 @@ def test_timeout(MockSmtp):
 @mock.patch("smtplib.SMTP")
 def test_stderr(MockSmtp):
     with testfixtures.LogCapture() as caplog:
-        run_job("errors.yaml")
+        run_job("errors")
 
         loglines = list(caplog.actual())
         assert ("root", "ERROR", "Job Bad grep job printed things to stderr:") in loglines
@@ -76,7 +69,7 @@ def test_stderr(MockSmtp):
 def test_store_output():
     path_glob = "/tmp/Which job/Which job*.log"
 
-    run_job("which_out.yaml")
+    run_job("which_out")
 
     log_files = sorted(glob.glob(path_glob))
     path = log_files[-1]
@@ -92,7 +85,7 @@ def test_store_output():
 def test_environment():
     path_glob = "/tmp/Env dumper/Env dumper*.log"
 
-    run_job("env.yaml")
+    run_job("env")
 
     log_files = sorted(glob.glob(path_glob))
     path = log_files[-1]

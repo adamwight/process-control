@@ -5,14 +5,14 @@ from processcontrol import config
 
 from . import override_config
 
+
 data_dir = os.path.dirname(__file__) + "/data"
 
-CONFIG_PATH = data_dir + "/global_defaults.yaml"
 JOB_DIR = data_dir + "/scheduled"
 
 
 def setup_module():
-    override_config.start(config_path=CONFIG_PATH, extra={
+    override_config.start(extra={
         "job_directory": JOB_DIR,
     })
 
@@ -25,8 +25,6 @@ def test_crontab():
     configuration = config.GlobalConfiguration()
     job_dir = configuration.get("job_directory")
     runner_path = configuration.get("runner_path")
-
-    # Relies on global_defaults.yaml to set job_directory=./data/scheduled
 
     crontab.make_cron()
 

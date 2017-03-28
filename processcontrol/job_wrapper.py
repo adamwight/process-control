@@ -10,10 +10,9 @@ from . import lock
 from . import mailer
 
 
+# TODO: uh has no raison d'etre now other than to demonstrate factoryness.
 def load(job_name):
-    job_directory = config.GlobalConfiguration().get("job_directory")
-    job_path = "{job_dir}/{job_name}.yaml".format(job_dir=job_directory, job_name=job_name)
-    return JobWrapper(config_path=job_path, slug=job_name)
+    return JobWrapper(slug=job_name)
 
 
 def list():
@@ -25,10 +24,17 @@ def list():
     return job_names
 
 
+def job_path_for_slug(slug):
+    global_config = config.GlobalConfiguration()
+    job_directory = global_config.get("job_directory")
+    path = "{root_dir}/{slug}.yaml".format(root_dir=job_directory, slug=slug)
+    return path
+
+
 class JobWrapper(object):
-    def __init__(self, config_path=None, slug=None):
+    def __init__(self, slug=None):
         self.global_config = config.GlobalConfiguration()
-        self.config_path = config_path
+        self.config_path = job_path_for_slug(slug)
         self.config = config.JobConfiguration(self.global_config, self.config_path)
 
         self.name = self.config.get("name")
@@ -51,7 +57,7 @@ class JobWrapper(object):
             self.environment = {}
 
     def run(self):
-        lock.begin(job_tag=self.name)
+        lock.begin(job_tag=self.slug)
 
         config.log.info("Running job {name} ({slug})".format(name=self.name, slug=self.slug))
 
