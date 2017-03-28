@@ -59,3 +59,11 @@ output_crontab: /etc/cron.d/process-control
 #    /var/log/process-control/jobname/jobname-20170401-235959.log
 #
 output_directory: /var/log/process-control
+
+# Path for working files such as locks.
+#
+# TODO: The deb install should create this directory and do something about
+# permissions.
+#run_directory: /var/run/process-control
+#
+run_directory: /tmp

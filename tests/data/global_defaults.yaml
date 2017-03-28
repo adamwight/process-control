@@ -28,3 +28,5 @@ output_crontab: /tmp/cronout.tab
 #    /var/log/process-control/jobname-20170401-235959.log
 #
 output_directory: /tmp
+
+run_directory: /tmp

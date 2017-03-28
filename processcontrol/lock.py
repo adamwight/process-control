@@ -3,15 +3,18 @@ Lockfile using a temporary file and the process id.
 
 Self-corrects stale locks unless "failopen" is True.
 '''
-import config
 import os
+
+from processcontrol import config
+
 
 lockfile = None
 
 
-def begin(filename=None, failopen=False, job_tag=None):
-    if not filename:
-        filename = "/tmp/{name}.lock".format(name=job_tag)
+# TODO: Decide whether we want to failopen?
+def begin(failopen=False, job_tag=None):
+    run_dir = config.GlobalConfiguration().get("run_directory")
+    filename = "{run_dir}/{name}.lock".format(run_dir=run_dir, name=job_tag)
 
     if os.path.exists(filename):
         config.log.error("Lockfile found!")

@@ -141,7 +141,8 @@ class JobWrapper(object):
         lock instead."""
 
         # FIXME: DRY
-        lock_path = "/tmp/{name}.lock".format(name=self.slug)
+        run_dir = self.global_config.get("run_directory")
+        lock_path = "/{run_dir}/{name}.lock".format(run_dir=run_dir, name=self.slug)
         if os.path.exists(lock_path):
             with open(lock_path, "r") as f:
                 pid = int(f.read().strip())
