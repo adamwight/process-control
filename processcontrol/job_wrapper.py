@@ -146,9 +146,8 @@ class JobWrapper(object):
         Do not use this function to gate the workflow, explicitly assert the
         lock instead."""
 
-        # FIXME: DRY
-        run_dir = self.global_config.get("run_directory")
-        lock_path = "/{run_dir}/{name}.lock".format(run_dir=run_dir, name=self.slug)
+        # FIXME: DRY--find a good line to cut at to split out lock.read_pid.
+        lock_path = lock.path_for_job(self.slug)
         if os.path.exists(lock_path):
             with open(lock_path, "r") as f:
                 pid = int(f.read().strip())

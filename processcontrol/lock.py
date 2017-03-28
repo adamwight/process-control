@@ -11,10 +11,15 @@ from processcontrol import config
 lockfile = None
 
 
+def path_for_job(job_name):
+    run_dir = config.GlobalConfiguration().get("run_directory")
+    filename = "{run_dir}/{name}.lock".format(run_dir=run_dir, name=job_name)
+    return filename
+
+
 # TODO: Decide whether we want to failopen?
 def begin(failopen=False, job_tag=None):
-    run_dir = config.GlobalConfiguration().get("run_directory")
-    filename = "{run_dir}/{name}.lock".format(run_dir=run_dir, name=job_tag)
+    filename = path_for_job(job_tag)
 
     if os.path.exists(filename):
         config.log.error("Lockfile found!")
