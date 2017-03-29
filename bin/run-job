@@ -24,7 +24,7 @@ def list_jobs():
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Run and maintain process-control jobs.")
 	parser.add_argument("-j", "--job", help="Run a given job.", type=str)
-	parser.add_argument("--list-jobs", help="Print a summary of available jobs.", action='store_true')
+	parser.add_argument("-l", "--list-jobs", help="Print a summary of available jobs.", action='store_true')
 	args = parser.parse_args()
 
 	if args.job:
