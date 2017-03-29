@@ -42,7 +42,10 @@ class JobWrapper(object):
         self.slug = slug
         self.start_time = datetime.datetime.utcnow()
         self.mailer = mailer.Mailer(self.config)
-        self.timeout = self.config.get("timeout")
+        if self.config.has("timeout"):
+            self.timeout = self.config.get("timeout")
+        else:
+            self.timeout = 0
 
         if self.config.has("disabled") and self.config.get("disabled") is True:
             self.enabled = False
@@ -62,36 +65,54 @@ class JobWrapper(object):
 
         config.log.info("Running job {name} ({slug})".format(name=self.name, slug=self.slug))
 
-        command = shlex.split(self.config.get("command"))
+        # Spawn timeout monitor thread.
+        if self.timeout > 0:
+            timer = threading.Timer(self.timeout, self.fail_timeout)
+            timer.start()
+
+        command = self.config.get("command")
+
+        if hasattr(command, "encode"):
+            # Is stringlike, so cast to a list and handle along with the plural
+            # case below.
+            command = [command]
+
+        try:
+            for line in command:
+                self.run_command(line)
+        finally:
+            lock.end()
+            if self.timeout > 0:
+                timer.cancel()
+
+    def run_command(self, command_string):
+        # TODO: Log commandline into the output log as well.
+        config.log.info("Running command: {cmd}".format(cmd=command_string))
+
+        command = shlex.split(command_string)
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
         streamer = output_streamer.OutputStreamer(self.process, self.slug, self.start_time)
         streamer.start()
 
-        timer = threading.Timer(self.timeout, self.fail_timeout)
-        timer.start()
+        # should be safe from deadlocks because our OutputStreamer
+        # has been consuming stderr and stdout
+        self.process.wait()
 
-        try:
-            # should be safe from deadlocks because our OutputStreamer
-            # has been consuming stderr and stdout
-            self.process.wait()
-
-            stderr_data = streamer.get_errors()
-            if len(stderr_data) > 0:
-                self.fail_has_stderr(stderr_data)
-        finally:
-            timer.cancel()
-            lock.end()
+        streamer.stop()
 
         return_code = self.process.returncode
         if return_code != 0:
             self.fail_exitcode(return_code)
+
+        self.process = None
 
     def fail_exitcode(self, return_code):
         message = "Job {name} failed with code {code}".format(name=self.name, code=return_code)
         config.log.error(message)
         # TODO: Prevent future jobs according to config.
         self.mailer.fail_mail(message)
+        raise JobFailure(message)
 
     def fail_has_stderr(self, stderr_data):
         message = "Job {name} printed things to stderr:".format(name=self.name)
@@ -99,6 +120,7 @@ class JobWrapper(object):
         body = stderr_data.decode("utf-8")
         config.log.error(body)
         self.mailer.fail_mail(message, body)
+        raise JobFailure(message)
 
     def fail_timeout(self):
         self.process.kill()
@@ -106,6 +128,7 @@ class JobWrapper(object):
         config.log.error(message)
         self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
+        raise JobFailure(message)
 
     def status(self):
         """Check for any running instances of this job, in this process or another.
@@ -124,3 +147,7 @@ class JobWrapper(object):
                 return {"status": "running", "pid": pid}
 
         return None
+
+
+class JobFailure(RuntimeError):
+    pass

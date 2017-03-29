@@ -23,6 +23,16 @@ name: Take This Job and Shove It
 # The commandline that will be run.  This is executed from Python and not from
 # a shell, so globbing and other trickery will not work.  Please give a full
 # path to the executable.
+#
+# Alternatively, a job can be configured as a list of several commands.  These
+# are executed in sequence, and execution stops at the first failure.
+#
+#command:
+#    # Run sub-jobs, each with their own lock and logfiles.
+#    - /usr/bin/run-job prepare_meal
+#    - /usr/bin/run-job mangia
+#    - /usr/bin/run-job clean_up_from_meal
+#
 command: /usr/local/bin/timecard --start 9:00 --end 5:30
 
 # Optional schedule, in Vixie cron format:

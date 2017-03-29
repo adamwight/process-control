@@ -59,6 +59,8 @@ def end():
     else:
         raise LockError("Already unlocked!")
 
+    lockfile = None
+
 
 class LockError(RuntimeError):
     pass

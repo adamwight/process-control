@@ -20,10 +20,11 @@ def test_success():
     tag = "success"
     lock.begin(job_tag=tag)
     assert lock.lockfile
+    path = lock.lockfile
     assert os.path.exists(lock.lockfile)
 
     lock.end()
-    assert not os.path.exists(lock.lockfile)
+    assert not os.path.exists(path)
 
 
 @nose.tools.raises(lock.LockError)

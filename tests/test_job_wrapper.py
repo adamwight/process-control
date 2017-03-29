@@ -36,7 +36,7 @@ def get_output_lines(slug):
 
     lines = []
     for line in contents.split("\n"):
-        lines.append(line.split(" ", 2)[-1])
+        lines.append(line.split("\t", 1)[-1])
 
     return lines
 
@@ -44,7 +44,8 @@ def get_output_lines(slug):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_return_code(MockSmtp, caplog):
-    run_job("return_code")
+    with nose.tools.assert_raises(job_wrapper.JobFailure):
+        run_job("return_code")
 
     loglines = caplog.actual()
     assert ("root", "ERROR", "Job False job failed with code 1") in loglines
@@ -57,7 +58,8 @@ def test_return_code(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_timeout(MockSmtp, caplog):
-    run_job("timeout")
+    with nose.tools.assert_raises(job_wrapper.JobFailure):
+        run_job("timeout")
 
     loglines = caplog.actual()
     assert ("root", "ERROR", "Job Timing out job timed out after 0.1 seconds") in loglines
@@ -69,12 +71,12 @@ def test_timeout(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_stderr(MockSmtp, caplog):
-    run_job("errors")
+    with nose.tools.assert_raises(job_wrapper.JobFailure):
+        run_job("errors")
 
     loglines = list(caplog.actual())
-    assert ("root", "ERROR", "Job Bad grep job printed things to stderr:") in loglines
-    assert ("root", "ERROR", "grep: Invalid regular expression") in loglines
-    assert ("root", "ERROR", "Job Bad grep job failed with code 2") in loglines
+    assert ("errors", "ERROR", "grep: Invalid regular expression") in loglines
+    # TODO: Should we go out of our way to log the non-zero return code as well?
 
     MockSmtp().sendmail.assert_called_once()
 
@@ -84,8 +86,7 @@ def test_store_output():
 
     lines = get_output_lines("which_out")
 
-    assert len(lines) == 5
-    assert "/bin/bash" in lines
+    assert "INFO\t/bin/bash" in lines
 
 
 def test_environment():
@@ -93,7 +94,5 @@ def test_environment():
 
     lines = get_output_lines("env")
 
-    assert len(lines) == 6
-
-    assert "foo1=bar" in lines
-    assert "foo2=rebar" in lines
+    assert "INFO\tfoo1=bar" in lines
+    assert "INFO\tfoo2=rebar" in lines
