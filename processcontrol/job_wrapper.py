@@ -8,6 +8,7 @@ import threading
 from . import config
 from . import lock
 from . import mailer
+from . import output_streamer
 
 
 # TODO: uh has no raison d'etre now other than to demonstrate factoryness.
@@ -64,15 +65,18 @@ class JobWrapper(object):
         command = shlex.split(self.config.get("command"))
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
+        streamer = output_streamer.OutputStreamer(self.process, self.slug, self.start_time)
+        streamer.start()
+
         timer = threading.Timer(self.timeout, self.fail_timeout)
         timer.start()
 
         try:
-            # FIXME: This doesn't stream, so large output will be buffered in memory.
-            (stdout_data, stderr_data) = self.process.communicate()
+            # should be safe from deadlocks because our OutputStreamer
+            # has been consuming stderr and stdout
+            self.process.wait()
 
-            self.store_job_output(stdout_data, stderr_data)
-
+            stderr_data = streamer.get_errors()
             if len(stderr_data) > 0:
                 self.fail_has_stderr(stderr_data)
         finally:
@@ -102,41 +106,6 @@ class JobWrapper(object):
         config.log.error(message)
         self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
-
-    def store_job_output(self, stdout_data, stderr_data):
-        output_directory = self.global_config.get("output_directory")
-        assert os.access(output_directory, os.W_OK)
-
-        # per-job directory
-        job_directory = output_directory + "/" + self.name
-        if not os.path.exists(job_directory):
-            os.makedirs(job_directory)
-
-        timestamp = self.start_time.strftime("%Y%m%d-%H%M%S")
-        filename = "{logdir}/{name}-{timestamp}.log".format(logdir=job_directory, name=self.name, timestamp=timestamp)
-        with open(filename, "a") as out:
-            header = (
-                "===========\n"
-                "{name} ({pid}), started at {time}\n"
-                "-----------\n"
-            ).format(name=self.name, pid=self.process.pid, time=self.start_time.isoformat())
-            out.write(header)
-
-            if len(stdout_data) == 0:
-                buf = "* No output *\n"
-            else:
-                buf = stdout_data.decode("utf-8")
-            out.write(buf)
-
-            if len(stderr_data) > 0:
-                header = (
-                    "-----------\n"
-                    "Even worse, the job emitted errors:\n"
-                    "-----------\n"
-                )
-                out.write(header)
-
-                out.write(stderr_data.decode("utf-8"))
 
     def status(self):
         """Check for any running instances of this job, in this process or another.

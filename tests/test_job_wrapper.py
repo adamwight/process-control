@@ -1,7 +1,6 @@
 import glob
 import mock
 import nose
-import os
 import testfixtures
 
 from processcontrol import job_wrapper
@@ -26,6 +25,20 @@ def test_success():
     run_job("successful")
 
     # TODO: assert more
+
+
+def get_output_lines(slug):
+    path_glob = "/tmp/{slug}/{slug}*.log".format(slug=slug)
+
+    log_files = sorted(glob.glob(path_glob))
+    path = log_files[-1]
+    contents = open(path, "r").read()
+
+    lines = []
+    for line in contents.split("\n"):
+        lines.append(line.split(" ", 2)[-1])
+
+    return lines
 
 
 @mock.patch("smtplib.SMTP")
@@ -60,41 +73,27 @@ def test_stderr(MockSmtp, caplog):
 
     loglines = list(caplog.actual())
     assert ("root", "ERROR", "Job Bad grep job printed things to stderr:") in loglines
-    assert ("root", "ERROR", "grep: Invalid regular expression\n") in loglines
+    assert ("root", "ERROR", "grep: Invalid regular expression") in loglines
     assert ("root", "ERROR", "Job Bad grep job failed with code 2") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
 
 def test_store_output():
-    path_glob = "/tmp/Which job/Which job*.log"
-
     run_job("which_out")
 
-    log_files = sorted(glob.glob(path_glob))
-    path = log_files[-1]
-    contents = open(path, "r").read()
-    lines = contents.split("\n")
+    lines = get_output_lines("which_out")
 
     assert len(lines) == 5
     assert "/bin/bash" in lines
 
-    os.unlink(path)
-
 
 def test_environment():
-    path_glob = "/tmp/Env dumper/Env dumper*.log"
-
     run_job("env")
 
-    log_files = sorted(glob.glob(path_glob))
-    path = log_files[-1]
-    contents = open(path, "r").read()
-    lines = contents.split("\n")
+    lines = get_output_lines("env")
 
     assert len(lines) == 6
 
     assert "foo1=bar" in lines
     assert "foo2=rebar" in lines
-
-    os.unlink(path)
