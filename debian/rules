@@ -4,4 +4,4 @@
 export PYBUILD_NAME=process-control
 
 %:
-	dh $@ --with python2
+	dh $@ --with=python2 --buildsystem=pybuild
