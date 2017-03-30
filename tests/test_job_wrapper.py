@@ -1,6 +1,7 @@
 import glob
 import mock
 import nose
+import os
 import testfixtures
 
 from processcontrol import job_wrapper
@@ -93,9 +94,12 @@ def test_store_output():
 
 
 def test_environment():
+    os.environ["MYENV"] = "pre-existing"
+
     run_job("env")
 
     lines = get_output_lines("env")
 
     assert "INFO\tfoo1=bar" in lines
     assert "INFO\tfoo2=rebar" in lines
+    assert "INFO\tMYENV=pre-existing" in lines
