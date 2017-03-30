@@ -85,7 +85,8 @@ class GlobalConfiguration(Configuration):
         Later entries override earlier entries.
         """
         if os.access(CONFIG_PATH, os.R_OK):
-            config = yaml.safe_load(open(CONFIG_PATH, "r"))
+            with open(CONFIG_PATH, "r") as f:
+                config = yaml.safe_load(f)
             self.values.update(config)
 
         self.validate_global_config()
@@ -107,7 +108,10 @@ class JobConfiguration(Configuration):
         else:
             defaults = {}
         Configuration.__init__(self, defaults)
-        self.values.update(yaml.safe_load(open(config_path, "r")))
+
+        with open(config_path, "r") as f:
+            self.values.update(yaml.safe_load(f))
+
         # TODO: Catch and interpret errors.
         self.validate_job_config()
 
