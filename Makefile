@@ -1,4 +1,5 @@
 .PHONY: \
+	clean \
 	coverage \
 	deb
 
@@ -7,6 +8,11 @@
 
 noop:
 	@echo Nothing to do!
+
+clean:
+	rm -rf debian/process-control*
+	rm -f debian/files
+	rm -f debian/debhelper-build-stamp
 
 coverage:
 	nosetests --with-coverage --cover-package=processcontrol --cover-html
