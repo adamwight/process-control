@@ -1,3 +1,4 @@
+import os
 import os.path
 
 from processcontrol import crontab
@@ -33,12 +34,13 @@ def test_crontab():
     # Strip regional variations.
     tab = tab.replace(job_dir, "X")
     tab = tab.replace(runner_path, "Y")
+    tab = tab.replace(str(os.getuid()), "Z")
 
     expected = """# Skipping disabled job disabled
 # Generated from X/schedule_2.yaml
-*/10 * * * * jenkins Y schedule_2
+*/10 * * * * Z Y schedule_2
 # Generated from X/schedule_good.yaml
-*/5 * * * * jenkins Y schedule_good
+*/5 * * * * Z Y schedule_good
 # Skipping disabled job unscheduled
 """
 

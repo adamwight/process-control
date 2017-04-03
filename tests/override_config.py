@@ -21,6 +21,8 @@ def start(config_path=DEFAULT_TEST_CONFIG, job_subdir=None, extra={}):
     elif "job_directory" not in extra:
         extra["job_directory"] = data_dir
 
+    extra["user"] = os.getuid()
+
     OverrideConfiguration.extra = extra
 
     global patcher

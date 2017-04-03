@@ -6,10 +6,6 @@ cron_template: |
 # Absolute path to the job harness.
 runner_path: /usr/bin/run-job
 
-# Cron will setuid to this user before running the command.  Only use service
-# accounts, never privileged ones.
-user: jenkins
-
 # Default values used when the job description doesn't have these keys.  See
 # the README for a discussion of how to configure jobs.
 default_job_config:

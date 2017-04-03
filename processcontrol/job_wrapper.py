@@ -1,6 +1,7 @@
 import datetime
 import glob
 import os
+import pwd
 import shlex
 import subprocess
 import threading
@@ -61,6 +62,14 @@ class JobWrapper(object):
             self.environment = {}
 
     def run(self):
+        # Check that we are the service user.
+        service_user = str(self.global_config.get("user"))
+        if service_user.isdigit():
+            passwd_entry = pwd.getpwuid(int(service_user))
+        else:
+            passwd_entry = pwd.getpwnam(service_user)
+        assert passwd_entry.pw_uid == os.getuid()
+
         lock.begin(job_tag=self.slug)
 
         config.log.info("Running job {name} ({slug})".format(name=self.name, slug=self.slug))

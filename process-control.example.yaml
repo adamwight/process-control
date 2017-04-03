@@ -6,8 +6,8 @@ cron_template: |
 # Absolute path to the job harness.
 runner_path: /usr/bin/run-job
 
-# Cron will setuid to this user before running the command.  Only use service
-# accounts, never privileged ones.
+# Enforce that jobs are run as this service user.
+# FIXME: new service user for this package.
 user: jenkins
 
 # Default values used when the job description doesn't have these keys.  See
