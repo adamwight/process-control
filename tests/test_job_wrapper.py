@@ -78,6 +78,9 @@ def test_stderr(MockSmtp, caplog):
     assert ("errors", "ERROR", "grep: Invalid regular expression") in loglines
     # TODO: Should we go out of our way to log the non-zero return code as well?
 
+    lines = get_output_lines("errors")
+    assert "ERROR\tgrep: Invalid regular expression" in lines
+
     MockSmtp().sendmail.assert_called_once()
 
 
