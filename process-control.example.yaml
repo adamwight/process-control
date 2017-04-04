@@ -27,8 +27,9 @@ job_directory: /var/lib/process-control
 # Python logging config, https://docs.python.org/2/library/logging.config.html#logging-config-dictschema
 logging:
     version: 1
-    #formatters:
-    #    -
+    formatters:
+        runjob:
+            format: 'run-job[%(process)d]: %(message)s'
 
     #filters:
     #    -
@@ -38,6 +39,7 @@ logging:
             class: logging.handlers.SysLogHandler
             level: DEBUG
             facility: daemon
+            formatter: runjob
 
     loggers:
         process-control:
