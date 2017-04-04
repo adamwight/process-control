@@ -56,10 +56,9 @@ class JobWrapper(object):
         if not self.config.has("schedule"):
             self.enabled = False
 
+        self.environment = os.environ.copy()
         if self.config.has("environment"):
-            self.environment = self.config.get("environment")
-        else:
-            self.environment = {}
+            self.environment.update(self.config.get("environment"))
 
     def run(self):
         # Check that we are the service user.
