@@ -43,8 +43,8 @@ schedule: "*/5 * * * *"
 # can still be run as a single-shot.
 disabled: true
 
-# Optional timeout in seconds, after which your job will be
-# aborted.  Defaults to 10 minutes, JobWrapper.DEFAULT_TIMEOUT
+# Optional timeout in minutes, after which your job will be
+# aborted.  Defaults to no timeout.
 timeout: 30
 
 # Optional environment variables.

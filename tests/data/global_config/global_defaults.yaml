@@ -13,7 +13,7 @@ default_job_config:
         from_address: "Fail Mail <fr-tech@wikimedia.org>"
         to_address: "fr-tech@wikimedia.org"
 
-    timeout: 600
+    timeout: 10
 
 # NOTE: `job_directory` is calculated by test setup.
 

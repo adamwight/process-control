@@ -81,7 +81,9 @@ class JobWrapper(object):
 
         # Spawn timeout monitor thread.
         if self.timeout > 0:
-            timer = threading.Timer(self.timeout, self.fail_timeout)
+            # Convert minutes to seconds.
+            timeout_seconds = self.timeout * 60
+            timer = threading.Timer(timeout_seconds, self.fail_timeout)
             timer.start()
 
         command = self.config.get("command")
@@ -138,7 +140,7 @@ class JobWrapper(object):
 
     def fail_timeout(self):
         self.process.kill()
-        message = "Job {name} timed out after {timeout} seconds".format(name=self.name, timeout=self.timeout)
+        message = "Job {name} timed out after {timeout} minutes".format(name=self.name, timeout=self.timeout)
         config.log.error(message)
         self.mailer.fail_mail(message)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
