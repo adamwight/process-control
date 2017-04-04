@@ -42,7 +42,7 @@ class JobCrontab(object):
         if not self.enabled:
             return "# Skipping disabled job {name}\n".format(name=self.job.slug)
 
-        command = "{runner} {name}".format(
+        command = "{runner} --job {name}".format(
             runner=self.job.global_config.get("runner_path"),
             name=self.job.slug)
 

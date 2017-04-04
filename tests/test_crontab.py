@@ -38,9 +38,9 @@ def test_crontab():
 
     expected = """# Skipping disabled job disabled
 # Generated from X/schedule_2.yaml
-*/10 * * * * Z Y schedule_2
+*/10 * * * * Z Y --job schedule_2
 # Generated from X/schedule_good.yaml
-*/5 * * * * Z Y schedule_good
+*/5 * * * * Z Y --job schedule_good
 # Skipping disabled job unscheduled
 """
 
