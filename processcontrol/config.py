@@ -2,6 +2,7 @@ import copy
 import logging
 import logging.config
 import os
+import sys
 import yaml
 
 
@@ -31,6 +32,9 @@ def setup_logging(global_config=None):
     else:
         # Set to the root logger.
         log = logging.getLogger()
+
+    if sys.stdout.isatty():
+        log.addHandler(logging.StreamHandler(sys.stdout))
 
 
 class Configuration():
