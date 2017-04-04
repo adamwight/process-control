@@ -102,6 +102,8 @@ def test_environment():
 
     assert "INFO\tfoo1=bar" in lines
     assert "INFO\tfoo2=rebar" in lines
+    assert "INFO\tfoo3=123" in lines
+    assert "INFO\tfoo4=True" in lines
     assert "INFO\tMYENV=pre-existing" in lines
 
 

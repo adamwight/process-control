@@ -62,7 +62,9 @@ class JobWrapper(object):
 
         self.environment = os.environ.copy()
         if self.config.has("environment"):
-            self.environment.update(self.config.get("environment"))
+            # Force all values to string
+            str_env = {k: str(v) for k, v in self.config.get("environment").items()}
+            self.environment.update(str_env)
 
     def run(self):
         # Check that we are the service user.
