@@ -36,6 +36,8 @@ logging:
 
     handlers:
         syslog:
+            # Give the file or network socket where your syslogd is listening.
+            address: /dev/log
             class: logging.handlers.SysLogHandler
             level: DEBUG
             facility: daemon
