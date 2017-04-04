@@ -37,6 +37,10 @@ class JobWrapper(object):
     def __init__(self, slug=None):
         self.global_config = config.GlobalConfiguration()
         self.config_path = job_path_for_slug(slug)
+
+        # Validate that we're not allowing directory traversal.
+        assert os.path.dirname(os.path.realpath(self.config_path)) == os.path.abspath(self.global_config.get("job_directory"))
+
         self.config = config.JobConfiguration(self.global_config, self.config_path)
 
         self.name = self.config.get("name")

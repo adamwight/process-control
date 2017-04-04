@@ -103,3 +103,10 @@ def test_environment():
     assert "INFO\tfoo1=bar" in lines
     assert "INFO\tfoo2=rebar" in lines
     assert "INFO\tMYENV=pre-existing" in lines
+
+
+@nose.tools.raises(AssertionError)
+def test_symlink():
+    '''Prevent running any job config outside the job_directory.'''
+
+    run_job("symlink")
