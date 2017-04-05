@@ -18,6 +18,9 @@ class JobRunner(object):
         self.mailer = mailer.Mailer(self.job)
         self.logfile = None
 
+        self.killer_was_me = False
+        self.failure_reason = None
+
     def run(self):
         # Check that we are the service user.
         service_user = str(self.global_config.get("user"))
@@ -41,13 +44,22 @@ class JobRunner(object):
 
         try:
             for command_line in self.job.commands:
-                self.run_command(command_line)
+                return_code = self.run_command(command_line)
+                if return_code != 0:
+                    self.fail_exitcode(return_code)
+        except JobFailure as ex:
+            config.log.error(ex.message)
+            self.mailer.fail_mail(ex.message, logfile=self.logfile)
+            raise
         finally:
-            lock.end()
             if self.job.timeout > 0:
+                # This becomes relevant when running multiple commands.
                 timer.cancel()
+            lock.end()
 
     def run_command(self, command_string):
+        """Fork a command, record its outputs to a logfile and return the
+        integer exit code."""
         # TODO: Log commandline into the output log as well.
         config.log.info("Running command: {cmd}".format(cmd=command_string))
 
@@ -65,33 +77,34 @@ class JobRunner(object):
         streamer.stop()
 
         return_code = self.process.returncode
-        if return_code != 0:
-            self.fail_exitcode(return_code)
 
         self.process = None
 
-    def fail_exitcode(self, return_code):
-        message = "{name} failed with code {code}".format(name=self.job.name, code=return_code)
-        config.log.error(message)
-        # TODO: Prevent future jobs according to config.
-        self.mailer.fail_mail(message, logfile=self.logfile)
-        raise JobFailure(message)
+        return return_code
 
-    def fail_has_stderr(self, stderr_data):
-        message = "{name} printed things to stderr:".format(name=self.job.name)
-        config.log.error(message)
-        body = stderr_data.decode("utf-8")
-        config.log.error(body)
-        self.mailer.fail_mail(message, body, logfile=self.logfile)
+    def fail_exitcode(self, return_code):
+        # Check if this is an expected non-zero return code, i.e. we sent the
+        # process a kill signal.
+        if self.killer_was_me:
+            # We already know, so pass through the failure reason.
+            message = self.failure_reason
+        else:
+            message = "{name} failed with code {code}".format(name=self.job.name, code=return_code)
+        # TODO: Prevent future jobs according to config.
         raise JobFailure(message)
 
     def fail_timeout(self):
+        # Send a message to self using cheap IPC.
+        # FIXME: or is this not safe?
+        self.killer_was_me = True
+        self.failure_reason = "{name} timed out after {timeout} minutes".format(
+            name=self.job.name, timeout=self.job.timeout)
+
+        config.log.warning("Killing subprocess due to timeout")
         self.process.kill()
-        message = "{name} timed out after {timeout} minutes".format(name=self.job.name, timeout=self.job.timeout)
-        config.log.error(message)
-        self.mailer.fail_mail(message, logfile=self.logfile)
-        # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
-        raise JobFailure(message)
+        # Note that we're on a separate thread, so instead of raising an
+        # exception, we rely on process.kill() to trigger fail_exitcode(-9) in
+        # the parent thread.
 
     def status(self):
         """Check for any running instances of this job, in this process or another.

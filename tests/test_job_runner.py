@@ -39,6 +39,7 @@ def get_output_lines(slug):
 
     lines = []
     for line in contents.split("\n"):
+        # Strip off the timestamp and split into tuples.
         lines.append(line.split("\t", 1)[-1])
 
     return lines
@@ -66,7 +67,6 @@ def test_timeout(MockSmtp, caplog):
 
     loglines = caplog.actual()
     assert ("root", "ERROR", "Timing out job timed out after 0.005 minutes") in loglines
-    assert ("root", "ERROR", "Timing out job failed with code -9") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
@@ -74,10 +74,12 @@ def test_timeout(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_stderr(MockSmtp, caplog):
+    """Test that stderr is being routed to the log."""
     with nose.tools.assert_raises(runner.JobFailure):
         run_job("errors")
 
     loglines = list(caplog.actual())
+    # FIXME: Use an included script, 'cos even posix output may change some day.
     assert ("errors", "ERROR", "grep: Invalid regular expression") in loglines
     # TODO: Should we go out of our way to log the non-zero return code as well?
 
