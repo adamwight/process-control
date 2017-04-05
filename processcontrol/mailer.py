@@ -1,5 +1,6 @@
 from email.mime.text import MIMEText
 import smtplib
+import socket
 
 
 class Mailer(object):
@@ -17,7 +18,10 @@ class Mailer(object):
 
         msg = MIMEText(body)
 
-        msg["Subject"] = "Fail Mail : " + subject
+        msg["Subject"] = "Fail Mail ({host}) run-job: {subject}".format(
+            host=socket.gethostname(),  # Why not os.gethostname?
+            subject=subject
+        )
         msg["From"] = self.from_address
         msg["To"] = self.to_address
 
