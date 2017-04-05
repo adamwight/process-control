@@ -27,13 +27,13 @@ def setup_logging(global_config=None):
         log_config = global_config.get("logging")
         logging.config.dictConfig(log_config)
         log = logging.getLogger("process-control")
-        log.info("Configured logging.")
-        log.debug(log_config)
+        log.debug("Configured logging.")
     else:
         # Set to the root logger.
         log = logging.getLogger()
 
     if sys.stdout.isatty():
+        # Also log to the console when running interactively.
         log.addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -59,7 +59,7 @@ class Configuration():
         return current
 
     def has(self, path):
-        """Test for existance of a property.
+        """Test for existence of a property.
         As with get(), use forward slashes to represent nested properties.
         """
         try:
