@@ -66,6 +66,15 @@ class JobWrapper(object):
             str_env = {k: str(v) for k, v in self.config.get("environment").items()}
             self.environment.update(str_env)
 
+        command = self.config.get("command")
+        if hasattr(command, "encode"):
+            # Is stringlike, so cast to a list and handle along with the plural
+            # case below.
+            command = [command]
+        # Otherwise, it's already a list.
+
+        self.commands = command
+
     def run(self):
         # Check that we are the service user.
         service_user = str(self.global_config.get("user"))
@@ -86,16 +95,9 @@ class JobWrapper(object):
             timer = threading.Timer(timeout_seconds, self.fail_timeout)
             timer.start()
 
-        command = self.config.get("command")
-
-        if hasattr(command, "encode"):
-            # Is stringlike, so cast to a list and handle along with the plural
-            # case below.
-            command = [command]
-
         try:
-            for line in command:
-                self.run_command(line)
+            for command_line in self.commands:
+                self.run_command(command_line)
         finally:
             lock.end()
             if self.timeout > 0:
