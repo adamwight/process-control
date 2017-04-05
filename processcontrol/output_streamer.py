@@ -1,5 +1,7 @@
+import logging
 import logging.config
 import os
+import sys
 import threading
 
 from . import config
@@ -31,6 +33,7 @@ class OutputStreamer(object):
         self.filename = make_logfile_path(slug, start_time)
         self.logger = None
         self.threads = {}
+        self.log_handlers = []
 
     def start(self):
         self.init_logger()
@@ -66,11 +69,18 @@ class OutputStreamer(object):
         self.logger = logging.getLogger(self.slug)
         self.logger.setLevel(logging.INFO)
 
-        self.log_file_handler = logging.FileHandler(self.filename)
+        log_file_handler = logging.FileHandler(self.filename)
         formatter = logging.Formatter("%(asctime)s\t%(levelname)s\t%(message)s")
-        self.log_file_handler.setFormatter(formatter)
+        log_file_handler.setFormatter(formatter)
 
-        self.logger.addHandler(self.log_file_handler)
+        self.log_handlers.append(log_file_handler)
+        self.logger.addHandler(log_file_handler)
+
+        if sys.stdout.isatty():
+            # Mirror to the console if run interactively.
+            console_handler = logging.StreamHandler(sys.stdout)
+            self.log_handlers.append(console_handler)
+            self.logger.addHandler(console_handler)
 
         # FIXME: gets written for each subprocess, so the name=slug is not
         # quite right.  Should be the commandline?
@@ -85,4 +95,6 @@ class OutputStreamer(object):
 
         # FIXME: sorry, I don't know what else to do.  If we keep adding file
         # handlers, we're in hot soup.
-        self.logger.removeHandler(self.log_file_handler)
+        for handler in self.log_handlers:
+            self.logger.removeHandler(handler)
+        self.log_handlers = []
