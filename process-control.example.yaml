@@ -20,11 +20,17 @@ default_job_config:
         from_address: "Fail Mail <fr-tech@wikimedia.org>"
         to_address: "fr-tech@wikimedia.org"
 
+    # Make the default timeout ten minutes.  If this line is removed, jobs will
+    # have unlimited time to run.
     timeout: 10
 
 job_directory: /var/lib/process-control
 
 # Python logging config, https://docs.python.org/2/library/logging.config.html#logging-config-dictschema
+# These are reasonable defaults that will send process-control output to
+# syslog.  Note that stderr and stdout from the job's command will go to a
+# logfile in /var/log/process-control and not through the logging settings
+# here.
 logging:
     version: 1
     formatters:

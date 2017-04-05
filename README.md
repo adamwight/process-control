@@ -8,59 +8,47 @@ file.  Any stderr is interpreted as a job failure.
 Configuration
 =======
 
-Global configuration must be created before you can run jobs (FIXME: works out
-of the box).  Copy the file /usr/share/doc/process-control/process-control.example.yaml
-to /etc/fundraising/process-control.yaml
+Global configuration must be created before you can run jobs (FIXME: Make this
+work out-of-the-box).  Copy the file
+/usr/share/doc/process-control/process-control.example.yaml
+to /etc/fundraising/process-control.yaml and customize it for your machine.
+
+You'll need to pick a service user, and make /var/log/process-control writable
+by that user.
 
 Job descriptions
 =======
 
-A job description file has the following format,
-
-```yaml
-name: Take This Job and Shove It
-
-# The commandline that will be run.  This is executed from Python and not from
-# a shell, so globbing and other trickery will not work.  Please give a full
-# path to the executable.
-#
-# Alternatively, a job can be configured as a list of several commands.  These
-# are executed in sequence, and execution stops at the first failure.
-#
-#command:
-#    # Run sub-jobs, each with their own lock and logfiles.
-#    - /usr/bin/run-job prepare_meal
-#    - /usr/bin/run-job mangia
-#    - /usr/bin/run-job clean_up_from_meal
-#
-command: /usr/local/bin/timecard --start 9:00 --end 5:30
-
-# Optional schedule, in Vixie cron format:
-# minute hour day-of-month month day-of-week
-schedule: "*/5 * * * *"
-
-# Optional flag to prevent scheduled job execution.  The job
-# can still be run as a single-shot.
-disabled: true
-
-# Optional timeout in minutes, after which your job will be
-# aborted.  Defaults to no timeout.
-timeout: 30
-
-# Optional environment variables.
-environment:
-	PYTHONPATH: /usr/share/invisible/pie
-```
+Each job is described in a YAML file under the /var/lib/process-control
+directory (by default).  See `job.example.yaml` for the available keys and
+their meaninings.
 
 Running
 =======
+
 Jobs can be run by name,
     run-job job-a-thon
 which will look for a job configuration in `/var/lib/process-control/job-a-thon.yaml`.
 
-Some actions are shoehorned in, and can be accessed like:
+Other actions on jobs can be accessed like:
     run-job --list-jobs
-	run-job --kill-job job-a-thon
+
+Scheduled Jobs
+======
+
+Any job that includes a `schedule` key and does not have `disabled: true` can
+be automatically scheduled.  The schedule value is given as a five-term Vixie
+crontab (man 5 crontab), but aliases like `@daily` are not allowed.
+
+A script `cron-generate` will read all scheduled jobs and write entries to
+/etc/cron.d/process-control, or the configured `output_crontab`.  For example,
+a job `yak` with the schedule `30 12 * * *` will be written 
+
+Cron-generate takes no arguments, its configuration is read from /etc.
+
+    cron-generate
+
+All cron jobs 
 
 Failure detection
 ======
@@ -74,11 +62,23 @@ process stderr, so may be included in failure email at the moment.
 * Non-zero subprocess exit code.
 * Timeout.
 
+Security
+======
+
+This tool was written for a typical environment where software developers and
+operations engineers have different permissions.  The design is supposed to
+make it reasonably safe for a group of developers to make auditable changes to
+job configuration without help from operations engineers, and it should not be
+possible for users to escalate privileges to anything but running processes as
+the service user.
+
+It should also not be possible to run arbitrary job descriptions from a user's
+home directory.  We recommend deploying the `job_directory` in a way that all
+changes can be audited.
 
 TODO
 ====
 
-* Syslog actions, at least when tweezing new crontabs.
 * Log invocations.
 * Prevent future job runs when unrecoverable failure conditions are detected.
 * Fine-tuning of failure detection.

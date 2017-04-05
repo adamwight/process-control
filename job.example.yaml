@@ -1,0 +1,52 @@
+# Copy this job to your configured `job_directory` and give it a name, like
+# `purge_binge.yaml`.
+
+#
+# Verbose job name.  The short, machine name is taken from the base file name.
+#
+name: Take This Job and Shove It
+
+# The commandline that will be run.  This is executed from Python and not from
+# a shell, so globbing, redirecting, and other trickery will not work.  Please
+# give the full path to executables as in a crontab.
+#
+#command: /usr/X11/bin/xsnow -geometry=100x300
+#
+# Alternatively, a job can be configured as a list of several commands.  These
+# are executed in sequence, and execution stops at the first failure.
+#
+#command:
+#    # Run a command directly.
+#    - /usr/bin/puppet apply
+#
+#    # Run sub-jobs, each with their own lockfiles, logfiles, and timeout.
+#    # Remember to set the parent job's timeout to something long enough to cover
+#    # all sub-jobs, or to zero for unlimited.
+#    - /usr/bin/run-job prepare_meal
+#    - /usr/bin/run-job mangia
+#    - /usr/bin/run-job clean_up_from_meal
+#
+command: /usr/local/bin/timecard --start 9:00 --end 5:30
+
+# Optional schedule, in Vixie cron format:
+# minute hour day-of-month month day-of-week
+schedule: "*/5 * * * *"
+
+#
+# Optional flag to prevent scheduled job execution.  The job
+# can still be run as a single-shot.
+#
+#disabled: true
+
+#
+# Optional timeout in minutes, after which your job will be
+# aborted.  Defaults to no timeout, or whatever is configured in
+# /etc/process-control.yaml
+#
+timeout: 30
+
+#
+# Optional environment variables.
+#
+environment:
+	PYTHONPATH: /usr/share/invisible/pie
