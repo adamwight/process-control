@@ -16,7 +16,7 @@ def list_jobs():
 			message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
 			status = runner.JobRunner(job).status()
 			if status is not None:
-				message += "    " + yaml.dump(status)
+				message += "    " + yaml.dump(status).strip()
 		except AssertionError:
 			message = "{job} ***Invalid configuration***".format(job=job_name)
 		print(message)
