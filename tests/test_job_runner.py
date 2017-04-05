@@ -51,7 +51,7 @@ def test_return_code(MockSmtp, caplog):
         run_job("return_code")
 
     loglines = caplog.actual()
-    assert ("root", "ERROR", "Job False job failed with code 1") in loglines
+    assert ("root", "ERROR", "False job failed with code 1") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 
@@ -65,8 +65,8 @@ def test_timeout(MockSmtp, caplog):
         run_job("timeout")
 
     loglines = caplog.actual()
-    assert ("root", "ERROR", "Job Timing out job timed out after 0.005 minutes") in loglines
-    assert ("root", "ERROR", "Job Timing out job failed with code -9") in loglines
+    assert ("root", "ERROR", "Timing out job timed out after 0.005 minutes") in loglines
+    assert ("root", "ERROR", "Timing out job failed with code -9") in loglines
 
     MockSmtp().sendmail.assert_called_once()
 

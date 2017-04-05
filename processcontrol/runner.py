@@ -15,7 +15,8 @@ class JobRunner(object):
     def __init__(self, job):
         self.global_config = config.GlobalConfiguration()
         self.job = job
-        self.mailer = mailer.Mailer(self.job.config)
+        self.mailer = mailer.Mailer(self.job)
+        self.logfile = None
 
     def run(self):
         # Check that we are the service user.
@@ -54,6 +55,7 @@ class JobRunner(object):
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.job.environment)
         streamer = output_streamer.OutputStreamer(self.process, self.job.slug, self.start_time)
+        self.logfile = streamer.filename
         streamer.start()
 
         # should be safe from deadlocks because our OutputStreamer
@@ -69,25 +71,25 @@ class JobRunner(object):
         self.process = None
 
     def fail_exitcode(self, return_code):
-        message = "Job {name} failed with code {code}".format(name=self.job.name, code=return_code)
+        message = "{name} failed with code {code}".format(name=self.job.name, code=return_code)
         config.log.error(message)
         # TODO: Prevent future jobs according to config.
-        self.mailer.fail_mail(message)
+        self.mailer.fail_mail(message, logfile=self.logfile)
         raise JobFailure(message)
 
     def fail_has_stderr(self, stderr_data):
-        message = "Job {name} printed things to stderr:".format(name=self.job.name)
+        message = "{name} printed things to stderr:".format(name=self.job.name)
         config.log.error(message)
         body = stderr_data.decode("utf-8")
         config.log.error(body)
-        self.mailer.fail_mail(message, body)
+        self.mailer.fail_mail(message, body, logfile=self.logfile)
         raise JobFailure(message)
 
     def fail_timeout(self):
         self.process.kill()
-        message = "Job {name} timed out after {timeout} minutes".format(name=self.job.name, timeout=self.job.timeout)
+        message = "{name} timed out after {timeout} minutes".format(name=self.job.name, timeout=self.job.timeout)
         config.log.error(message)
-        self.mailer.fail_mail(message)
+        self.mailer.fail_mail(message, logfile=self.logfile)
         # FIXME: Job will return SIGKILL now, fail_exitcode should ignore that signal now?
         raise JobFailure(message)
 

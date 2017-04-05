@@ -4,15 +4,20 @@ import socket
 
 
 class Mailer(object):
-    def __init__(self, config):
-        self.from_address = config.get("failmail/from_address")
-        self.to_address = config.get("failmail/to_address")
+    def __init__(self, job):
+        self.job = job
+        self.from_address = job.config.get("failmail/from_address")
+        self.to_address = job.config.get("failmail/to_address")
         # FIXME: this is set to ensure one failmail per instance. Should
         # do something more sophisticated to collect all calls and send
         # the mail before exiting.
         self.sent_fail_mail = False
 
-    def fail_mail(self, subject, body="Hope your wits are freshly sharpened!"):
+    def fail_mail(self, subject, logfile=None):
+        if logfile is not None:
+            body = "See the logs for more information: {logfile}".format(logfile=logfile)
+        else:
+            body = "No details available."
         if self.sent_fail_mail:
             return
 
