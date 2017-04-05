@@ -64,3 +64,8 @@ class Job(object):
         # Otherwise, it's already a list.
 
         self.commands = command
+
+        if self.config.has("description"):
+            self.description = self.config.get("description")
+        else:
+            self.description = None

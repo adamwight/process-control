@@ -6,6 +6,13 @@
 #
 name: Take This Job and Shove It
 
+#
+# Optional text explaining the job.
+#
+description: >
+    Create TPS report in the basement, execute in triplicate and shoot it down
+    the pneumatic tube.  Wait three weeks for delivery.
+
 # The commandline that will be run.  This is executed from Python and not from
 # a shell, so globbing, redirecting, and other trickery will not work.  Please
 # give the full path to executables as in a crontab.

@@ -17,6 +17,10 @@ def list_jobs():
 			status = runner.JobRunner(job).status()
 			if status is not None:
 				message += "    " + yaml.dump(status).strip()
+
+			# TODO: command-line flag to verbose or not.
+			if job.description is not None:
+				message += "\n    " + job.description
 		except AssertionError:
 			message = "{job} ***Invalid configuration***".format(job=job_name)
 		print(message)
