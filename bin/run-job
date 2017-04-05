@@ -5,15 +5,16 @@ import argparse
 import sys
 import yaml
 
-from processcontrol import job_wrapper
+from processcontrol import runner
+from processcontrol import job_spec
 
 
 def list_jobs():
-	for job_name in job_wrapper.list():
+	for job_name in job_spec.list():
 		try:
-			job = job_wrapper.load(job_name)
+			job = job_spec.load(job_name)
 			message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
-			status = job.status()
+			status = runner.JobRunner(job).status()
 			if status is not None:
 				message += "    " + yaml.dump(status)
 		except AssertionError:
@@ -28,8 +29,9 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	if args.job:
-		job = job_wrapper.load(args.job)
-		job.run()
+		job = job_spec.load(args.job)
+		runner = runner.JobRunner(job)
+		runner.run()
 
 	if args.list_jobs:
 		list_jobs()

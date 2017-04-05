@@ -4,7 +4,8 @@ import nose
 import os
 import testfixtures
 
-from processcontrol import job_wrapper
+from processcontrol import runner
+from processcontrol import job_spec
 
 from . import override_config
 
@@ -18,8 +19,9 @@ def teardown_module():
 
 
 def run_job(job_name):
-    job = job_wrapper.load(job_name)
-    job.run()
+    job = job_spec.load(job_name)
+    job_runner = runner.JobRunner(job)
+    job_runner.run()
 
 
 def test_success():
@@ -45,7 +47,7 @@ def get_output_lines(slug):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_return_code(MockSmtp, caplog):
-    with nose.tools.assert_raises(job_wrapper.JobFailure):
+    with nose.tools.assert_raises(runner.JobFailure):
         run_job("return_code")
 
     loglines = caplog.actual()
@@ -59,7 +61,7 @@ def test_return_code(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_timeout(MockSmtp, caplog):
-    with nose.tools.assert_raises(job_wrapper.JobFailure):
+    with nose.tools.assert_raises(runner.JobFailure):
         run_job("timeout")
 
     loglines = caplog.actual()
@@ -72,7 +74,7 @@ def test_timeout(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_stderr(MockSmtp, caplog):
-    with nose.tools.assert_raises(job_wrapper.JobFailure):
+    with nose.tools.assert_raises(runner.JobFailure):
         run_job("errors")
 
     loglines = list(caplog.actual())

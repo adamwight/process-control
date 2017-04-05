@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from . import config
-from . import job_wrapper
+from . import job_spec
 
 
 def make_cron():
@@ -9,12 +9,12 @@ def make_cron():
     Read all files from the dir and output a crontab.
     '''
 
-    jobs = job_wrapper.list()
+    jobs = job_spec.list()
     cron_text = ""
 
     for job_name in jobs:
         # FIXME just use the configuration classes, no need for job
-        job = job_wrapper.load(job_name)
+        job = job_spec.load(job_name)
         tab = JobCrontab(job)
 
         cron_text += str(tab)
