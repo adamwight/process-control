@@ -34,13 +34,20 @@ if __name__ == "__main__":
 	# TODO: Change the function name or move responsibilities beyond "run" to a
 	# new script.
 	parser = argparse.ArgumentParser(description="Run or query `process-control` jobs.")
-	parser.add_argument("-j", "--job", help="Run a given job.", type=str)
+	job_group = parser.add_mutually_exclusive_group()
+	job_group.add_argument("job", nargs="?", help="Run a given job.", type=str)
+	job_group.add_argument("-j", "--job", dest="job_name", help="Run a given job.", type=str)
 	parser.add_argument("-l", "--list-jobs", help="Print a summary of available jobs.", action='store_true')
 	# TODO: --kill-job, --disable-group, --enable-group
 	args = parser.parse_args()
 
-	if args.job:
-		job = job_spec.load(args.job)
+	job_name = None
+	if args.job_name is not None:
+		job_name = args.job_name
+	if args.job is not None:
+		job_name = args.job
+	if job_name is not None:
+		job = job_spec.load(job_name)
 		runner = runner.JobRunner(job)
 		runner.run()
 
