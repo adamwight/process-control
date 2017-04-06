@@ -63,8 +63,7 @@ class Configuration():
         raw value if it's already a list."""
         value = self.get(path)
         if hasattr(value, "encode"):
-            # Is stringlike, so cast to a list and handle along with the plural
-            # case below.
+            # Is stringlike, so cast to a list.
             return [value]
 
         # Otherwise, it's already a list.

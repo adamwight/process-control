@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+#
+# Report job status in a format that can be consumed by Icinga.
+
+import argparse
+import sys
+
+
+from processcontrol import job_spec
+from processcontrol import job_state
+
+
+def report_statuses():
+	"""Build response string and exit code from statuses."""
+	statuses = load_statuses()
+	bad_jobs = []
+	for job, status in statuses.items():
+		# Be conservative about what is failure, for now.  Eventually, we
+		# should warn about invalid and unknown.
+		if status == "failure":
+			bad_jobs.append(job)
+
+	if len(bad_jobs) == 0:
+		print("JOBS OK")
+		sys.exit(0)
+	else:
+		bad_jobs_message = ", ".join(bad_jobs)
+		print("FAILING JOBS: {jobs}".format(jobs=bad_jobs_message))
+		sys.exit(2)
+
+
+def load_statuses():
+	"""Fetch statuses from history files."""
+	statuses = {}
+	jobs = job_spec.list()
+	for job in jobs:
+		try:
+			state = job_state.load_state(job)
+		except:
+			statuses[job] = "invalid"
+		if state.last_completion_status is None:
+			statuses[job] = "unknown"
+		else:
+			statuses[job] = state.last_completion_status
+
+	return statuses
+
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="Report the status of all `process-control` jobs in a format that can be consumed by Icinga.")
+	args = parser.parse_args()
+
+	report_statuses()

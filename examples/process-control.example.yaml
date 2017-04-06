@@ -77,6 +77,9 @@ output_directory: /var/log/process-control
 #
 # TODO: The deb install should create this directory and do something about
 # permissions.
+# TODO: rename to `lock_directory`
 #run_directory: /var/run/process-control
 #
 run_directory: /tmp
+
+state_directory: /var/cache/process-control

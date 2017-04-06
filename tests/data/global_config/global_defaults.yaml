@@ -26,3 +26,5 @@ output_crontab: /tmp/cronout.tab
 output_directory: /tmp
 
 run_directory: /tmp
+
+state_directory: /tmp

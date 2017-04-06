@@ -6,6 +6,7 @@ import yaml
 
 from processcontrol import runner
 from processcontrol import job_spec
+from processcontrol import job_state
 
 
 def list_jobs():
@@ -25,6 +26,10 @@ def list_jobs():
 
 			if len(job.tags) > 0:
 				message += "\n    tags: " + ", ".join(job.tags)
+
+			stored_state = job_state.load_state(job_slug)
+			message += "\n    last status: " + stored_state.last_completion_status
+
 		except AssertionError:
 			message = "{job} ***Invalid configuration***".format(job=job_slug)
 		print(message)

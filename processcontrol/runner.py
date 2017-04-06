@@ -6,6 +6,7 @@ import subprocess
 import threading
 
 from . import config
+from . import job_state
 from . import lock
 from . import mailer
 from . import output_streamer
@@ -32,6 +33,8 @@ class JobRunner(object):
 
         lock.begin(job_tag=self.job.slug)
         self.start_time = datetime.datetime.utcnow()
+        job_history = job_state.load_state(self.job.slug)
+        job_history.record_started(self.start_time)
 
         config.log.info("Running job {name} ({slug})".format(name=self.job.name, slug=self.job.slug))
 
@@ -47,9 +50,11 @@ class JobRunner(object):
                 return_code = self.run_command(command_line)
                 if return_code != 0:
                     self.fail_exitcode(return_code)
+            job_history.record_success()
         except JobFailure as ex:
             config.log.error(str(ex))
             self.mailer.fail_mail(str(ex), logfile=self.logfile)
+            job_history.record_failure()
             raise
         finally:
             if self.job.timeout > 0:

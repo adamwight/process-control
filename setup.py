@@ -10,6 +10,7 @@ distutils.core.setup(
     url='https://github.com/adamwight/process-control',
     packages=['processcontrol'],
     scripts=[
+        'bin/check-jobs-icinga',
         'bin/cron-generate',
         'bin/run-job',
     ],
