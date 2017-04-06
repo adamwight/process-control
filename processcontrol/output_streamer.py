@@ -5,6 +5,22 @@ import threading
 from . import config
 
 
+def make_logfile_path(slug, start_time):
+    """
+    Makes the output file path and creates parent directory if needed
+    """
+    output_directory = config.GlobalConfiguration().get("output_directory")
+    assert os.access(output_directory, os.W_OK)
+
+    # per-job directory
+    job_log_directory = output_directory + "/" + slug
+    if not os.path.exists(job_log_directory):
+        os.makedirs(job_log_directory)
+
+    timestamp = start_time.strftime("%Y%m%d-%H%M%S")
+    return "{logdir}/{name}-{timestamp}.log".format(logdir=job_log_directory, name=slug, timestamp=timestamp)
+
+
 class OutputStreamer(object):
 
     def __init__(self, process, slug, start_time):
@@ -12,8 +28,7 @@ class OutputStreamer(object):
         self.err_stream = process.stderr
         self.pid = process.pid
         self.slug = slug
-        self.start_time = start_time
-        self.filename = self.make_logfile_path()
+        self.filename = make_logfile_path(slug, start_time)
         self.logger = None
         self.threads = {}
 
@@ -43,21 +58,6 @@ class OutputStreamer(object):
                 self.logger.error(line)
             else:
                 self.logger.info(line)
-
-    def make_logfile_path(self):
-        """
-        Makes the output file path and creates parent directory if needed
-        """
-        output_directory = config.GlobalConfiguration().get("output_directory")
-        assert os.access(output_directory, os.W_OK)
-
-        # per-job directory
-        job_directory = output_directory + "/" + self.slug
-        if not os.path.exists(job_directory):
-            os.makedirs(job_directory)
-
-        timestamp = self.start_time.strftime("%Y%m%d-%H%M%S")
-        return "{logdir}/{name}-{timestamp}.log".format(logdir=job_directory, name=self.slug, timestamp=timestamp)
 
     def init_logger(self):
         if self.logger is not None:
