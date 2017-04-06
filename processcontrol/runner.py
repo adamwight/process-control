@@ -66,7 +66,7 @@ class JobRunner(object):
         command = shlex.split(command_string)
 
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.job.environment)
-        streamer = output_streamer.OutputStreamer(self.process, self.job.slug, self.start_time)
+        streamer = output_streamer.OutputStreamer(self.process, self.job.slug, command_string, self.start_time)
         self.logfile = streamer.filename
         streamer.start()
 

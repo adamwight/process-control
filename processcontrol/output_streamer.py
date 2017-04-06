@@ -25,11 +25,12 @@ def make_logfile_path(slug, start_time):
 
 class OutputStreamer(object):
 
-    def __init__(self, process, slug, start_time):
+    def __init__(self, process, slug, cmdline, start_time):
         self.out_stream = process.stdout
         self.err_stream = process.stderr
         self.pid = process.pid
         self.slug = slug
+        self.cmdline = cmdline
         self.filename = make_logfile_path(slug, start_time)
         self.logger = None
         self.threads = {}
@@ -37,8 +38,17 @@ class OutputStreamer(object):
 
     def start(self):
         self.init_logger()
+
+        self.log_header()
+
         self.start_reading(self.out_stream, "stdout")
         self.start_reading(self.err_stream, "stderr", is_error_stream=True)
+
+    def log_header(self):
+        # TODO: maybe expose the header as a configurable template.
+        self.logger.info("===========")
+        self.logger.info("{cmdline} ({pid})".format(cmdline=self.cmdline, pid=self.pid))
+        self.logger.info("-----------")
 
     def start_reading(self, stream, stream_name, is_error_stream=False):
         thread = threading.Thread(
@@ -81,12 +91,6 @@ class OutputStreamer(object):
             console_handler = logging.StreamHandler(sys.stdout)
             self.log_handlers.append(console_handler)
             self.logger.addHandler(console_handler)
-
-        # FIXME: gets written for each subprocess, so the name=slug is not
-        # quite right.  Should be the commandline?
-        self.logger.info("===========")
-        self.logger.info("{name} ({pid})".format(name=self.slug, pid=self.pid))
-        self.logger.info("-----------")
 
     def stop(self):
         for thread in self.threads.values():
