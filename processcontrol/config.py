@@ -58,6 +58,18 @@ class Configuration():
             current = current[part]
         return current
 
+    def get_as_list(self, path):
+        """Cast the value to a list, if it's a single element, or return the
+        raw value if it's already a list."""
+        value = self.get(path)
+        if hasattr(value, "encode"):
+            # Is stringlike, so cast to a list and handle along with the plural
+            # case below.
+            return [value]
+
+        # Otherwise, it's already a list.
+        return value
+
     def has(self, path):
         """Test for existence of a property.
         As with get(), use forward slashes to represent nested properties.

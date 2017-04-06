@@ -79,7 +79,6 @@ changes can be audited.
 TODO
 ====
 
-* Log invocations.
 * Prevent future job runs when unrecoverable failure conditions are detected.
 * Fine-tuning of failure detection.
 * Job group tags.

@@ -57,3 +57,12 @@ timeout: 30
 #
 environment:
 	PYTHONPATH: /usr/share/invisible/pie
+
+#
+# Optional job tags, which can be used to manipulate groups of jobs sharing that tag.
+#
+#tag: beta
+#
+#tag:
+#    - database
+#    - queue

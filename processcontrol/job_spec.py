@@ -56,14 +56,12 @@ class Job(object):
             str_env = {k: str(v) for k, v in self.config.get("environment").items()}
             self.environment.update(str_env)
 
-        command = self.config.get("command")
-        if hasattr(command, "encode"):
-            # Is stringlike, so cast to a list and handle along with the plural
-            # case below.
-            command = [command]
-        # Otherwise, it's already a list.
+        self.commands = self.config.get_as_list("command")
 
-        self.commands = command
+        if self.config.has("tag"):
+            self.tags = self.config.get_as_list("tag")
+        else:
+            self.tags = []
 
         if self.config.has("description"):
             self.description = self.config.get("description")
