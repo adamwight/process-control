@@ -12,8 +12,11 @@ coverage:
 	nosetests --with-coverage --cover-package=processcontrol --cover-html
 	@echo Results are in cover/index.html
 
-deb:
+deb: debian
 	@echo Note that this is not how we build our production .deb
 	# FIXME: fragile
-	cd ..; tar cjf process-control_0.0.1~rc1.orig.tar.bz2 process-control; cd process-control
+	cd ..; tar cjf process-control_1.0.5.orig.tar.bz2 process-control; cd process-control
 	debuild -us -uc
+
+debian:
+	@[ ! -d debian ] && (echo You can clone the debian directory from https://github.com/adamwight/process-control-debian ; exit 1)

@@ -48,8 +48,8 @@ class JobRunner(object):
                 if return_code != 0:
                     self.fail_exitcode(return_code)
         except JobFailure as ex:
-            config.log.error(ex.message)
-            self.mailer.fail_mail(ex.message, logfile=self.logfile)
+            config.log.error(str(ex))
+            self.mailer.fail_mail(str(ex), logfile=self.logfile)
             raise
         finally:
             if self.job.timeout > 0:

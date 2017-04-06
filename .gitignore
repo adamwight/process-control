@@ -3,8 +3,5 @@ build
 .cache
 cover
 .coverage
+debian
 .tox
-
-debian/debhelper-build-stamp
-debian/files
-debian/process-control*
