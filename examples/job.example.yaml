@@ -1,5 +1,5 @@
-# Copy this job to your configured `job_directory` and give it a name, like
-# `purge_binge.yaml`.
+# Copy this job to /var/lib/process-control/ or your configured `job_directory`
+# and give name it according to the job, like `purge_binge.yaml`.
 
 #
 # Verbose job name.  The short, machine name is taken from the base file name.
