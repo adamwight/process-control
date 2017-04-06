@@ -10,10 +10,12 @@ from processcontrol import job_spec
 
 
 def list_jobs():
-	for job_name in job_spec.list():
+	for job_slug in job_spec.list():
 		try:
-			job = job_spec.load(job_name)
-			message = "{job} - {human_name}".format(job=job_name, human_name=job.name)
+			# FIXME: Nicer if this inner loop moved to Job rather than having
+			# status come from an ephemeral runner.
+			job = job_spec.load(job_slug)
+			message = "{job} - {name}".format(job=job_slug, name=job.name)
 			status = runner.JobRunner(job).status()
 			if status is not None:
 				message += "    " + yaml.dump(status).strip()
@@ -22,14 +24,17 @@ def list_jobs():
 			if job.description is not None:
 				message += "\n    " + job.description
 		except AssertionError:
-			message = "{job} ***Invalid configuration***".format(job=job_name)
+			message = "{job} ***Invalid configuration***".format(job=job_slug)
 		print(message)
 
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description="Run and maintain process-control jobs.")
+	# TODO: Change the function name or move responsibilities beyond "run" to a
+	# new script.
+	parser = argparse.ArgumentParser(description="Run or query `process-control` jobs.")
 	parser.add_argument("-j", "--job", help="Run a given job.", type=str)
 	parser.add_argument("-l", "--list-jobs", help="Print a summary of available jobs.", action='store_true')
+	# TODO: --kill-job, --disable-group, --enable-group
 	args = parser.parse_args()
 
 	if args.job:
