@@ -12,7 +12,7 @@ def make_logfile_path(slug, start_time):
     Makes the output file path and creates parent directory if needed
     """
     output_directory = config.GlobalConfiguration().get("output_directory")
-    assert os.access(output_directory, os.W_OK)
+    assert os.access(output_directory, os.W_OK), "Make sure directory '{path}' exists and is writable".format(path=output_directory)
 
     # per-job directory
     job_log_directory = output_directory + "/" + slug

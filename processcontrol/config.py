@@ -83,7 +83,7 @@ class Configuration():
 class MissingKeyException(Exception):
 
     def __init__(self, path):
-        message = "Missing configuration key '" + path + "'"
+        message = "Missing configuration key '{path}'".format(path=path)
         super(MissingKeyException, self).__init__(message)
 
 
@@ -107,12 +107,16 @@ class GlobalConfiguration(Configuration):
         self.validate_global_config()
 
     def validate_global_config(self):
-        assert "cron_template" in self.values
-        assert "job_directory" in self.values
-        assert "output_crontab" in self.values
-        assert "output_directory" in self.values
-        assert "runner_path" in self.values
-        assert "user" in self.values
+        required_settings = (
+            "cron_template",
+            "job_directory",
+            "output_crontab",
+            "output_directory",
+            "runner_path",
+            "user",
+        )
+        for setting in required_settings:
+            assert setting in self.values, "Global config invalid: missing required '{setting}'".format(setting=setting)
 
 
 class JobConfiguration(Configuration):
@@ -131,19 +135,19 @@ class JobConfiguration(Configuration):
         self.validate_job_config()
 
     def validate_job_config(self):
-        assert "name" in self.values
+        assert "name" in self.values, "Job config invalid: missing required 'name'"
 
-        assert "command" in self.values
-        assert "\n" not in self.values["command"]
+        assert "command" in self.values, "Job config invalid: missing required 'command'"
+        assert "\n" not in self.values["command"], "Job config invalid: 'command' may not contain newlines"
 
         if "schedule" in self.values:
             # No tricky assignments.
-            assert "=" not in self.values["schedule"]
+            assert "=" not in self.values["schedule"], "Job config invalid: 'schedule' may not contain the '=' character"
             # Legal cron, but I don't want to deal with it.
-            assert "@" not in self.values["schedule"]
+            assert "@" not in self.values["schedule"], "Job config invalid: 'schedule' may not contain the '@' character"
             # No line breaks
-            assert "\n" not in self.values["schedule"]
+            assert "\n" not in self.values["schedule"], "Job config invalid: 'schedule' may not contain newlines"
 
             # Be sure the schedule is valid.
             terms = self.values["schedule"].split()
-            assert len(terms) == 5
+            assert len(terms) == 5, "Job config invalid: 'schedule' must contain 5 values separated by whitespace"

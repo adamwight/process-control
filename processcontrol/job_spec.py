@@ -31,7 +31,9 @@ class Job(object):
         self.config_path = job_path_for_slug(slug)
 
         # Validate that we're not allowing directory traversal.
-        assert os.path.dirname(os.path.realpath(self.config_path)) == os.path.abspath(self.global_config.get("job_directory"))
+        job_directory = os.path.abspath(self.global_config.get("job_directory"))
+        assert os.path.dirname(os.path.realpath(self.config_path)) == job_directory, \
+            "You may only run jobs with configuration files in '{path}'".format(path=job_directory)
 
         self.config = config.JobConfiguration(self.global_config, self.config_path)
 

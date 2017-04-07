@@ -29,7 +29,7 @@ class JobRunner(object):
             passwd_entry = pwd.getpwuid(int(service_user))
         else:
             passwd_entry = pwd.getpwnam(service_user)
-        assert passwd_entry.pw_uid == os.getuid()
+        assert passwd_entry.pw_uid == os.getuid(), "You must run jobs as user '{user}'".format(user=service_user)
 
         self.start_time = datetime.datetime.utcnow()
 
