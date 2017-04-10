@@ -4,4 +4,5 @@ build
 cover
 .coverage
 debian
+.pybuild
 .tox
