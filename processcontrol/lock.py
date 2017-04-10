@@ -18,8 +18,8 @@ def path_for_job(job_name):
 
 
 # TODO: Decide whether we want to failopen?
-def begin(failopen=False, job_tag=None):
-    filename = path_for_job(job_tag)
+def begin(failopen=False, slug=None):
+    filename = path_for_job(slug)
 
     if os.path.exists(filename):
         config.log.error("Lockfile found!")

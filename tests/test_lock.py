@@ -18,7 +18,7 @@ def tearDown():
 
 def test_success():
     tag = "success"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
     assert lock.lockfile
     path = lock.lockfile
     assert os.path.exists(lock.lockfile)
@@ -30,15 +30,15 @@ def test_success():
 @nose.tools.raises(lock.LockError)
 def test_live_lock():
     tag = "live"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Will die because the process (this one) is still running.
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
 
 def test_stale_lock():
     tag = "stale"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Make the lockfile stale by changing the process ID.
     assert lock.lockfile
@@ -46,7 +46,7 @@ def test_stale_lock():
     f.write("-1")
     f.close()
 
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Check that we overwrote the contents with the current PID.
     assert lock.lockfile
@@ -61,7 +61,7 @@ def test_stale_lock():
 @nose.tools.raises(lock.LockError)
 def test_stale_lock_failopen():
     tag = "stale-open"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Make the lockfile stale by changing the process ID.
     assert lock.lockfile
@@ -69,12 +69,12 @@ def test_stale_lock_failopen():
     f.write("-1")
     f.close()
 
-    lock.begin(job_tag=tag, failopen=True)
+    lock.begin(slug=tag, failopen=True)
 
 
 def test_invalid_lock():
     tag = "stale"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Make the lockfile invalid by changing the process ID to non-numeric.
     assert lock.lockfile
@@ -82,7 +82,7 @@ def test_invalid_lock():
     f.write("ABC")
     f.close()
 
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
 
     # Check that we overwrote the contents with the current PID.
     assert lock.lockfile
@@ -97,7 +97,7 @@ def test_invalid_lock():
 @nose.tools.raises(lock.LockError)
 def test_double_unlock():
     tag = "unlock-unlock"
-    lock.begin(job_tag=tag)
+    lock.begin(slug=tag)
     lock.end()
 
     # Should throw an exception.

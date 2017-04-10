@@ -31,7 +31,7 @@ class JobRunner(object):
             passwd_entry = pwd.getpwnam(service_user)
         assert passwd_entry.pw_uid == os.getuid()
 
-        lock.begin(job_tag=self.job.slug)
+        lock.begin(slug=self.job.slug)
         self.start_time = datetime.datetime.utcnow()
         job_history = job_state.load_state(self.job.slug)
         job_history.record_started(self.start_time)
