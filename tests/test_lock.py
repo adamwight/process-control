@@ -94,11 +94,10 @@ def test_invalid_lock():
     lock.end()
 
 
-@nose.tools.raises(lock.LockError)
 def test_double_unlock():
     tag = "unlock-unlock"
     lock.begin(slug=tag)
     lock.end()
 
-    # Should throw an exception.
+    # Should silently have nothing to do.
     lock.end()

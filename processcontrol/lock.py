@@ -53,11 +53,12 @@ def begin(failopen=False, slug=None):
 
 def end():
     global lockfile
-    if lockfile and os.path.exists(lockfile):
-        config.log.info("Clearing lockfile.")
-        os.unlink(lockfile)
-    else:
-        raise LockError("Already unlocked!")
+    if lockfile:
+        if os.path.exists(lockfile):
+            config.log.info("Clearing lockfile.")
+            os.unlink(lockfile)
+        else:
+            raise LockError("Already unlocked!")
 
     lockfile = None
 

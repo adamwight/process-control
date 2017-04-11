@@ -48,8 +48,7 @@ def get_output_lines(slug):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_return_code(MockSmtp, caplog):
-    with nose.tools.assert_raises(runner.JobFailure):
-        run_job("return_code")
+    run_job("return_code")
 
     loglines = caplog.actual()
     assert ("root", "ERROR", "False job failed with code 1") in loglines
@@ -62,8 +61,7 @@ def test_return_code(MockSmtp, caplog):
 @mock.patch("smtplib.SMTP")
 @testfixtures.log_capture()
 def test_timeout(MockSmtp, caplog):
-    with nose.tools.assert_raises(runner.JobFailure):
-        run_job("timeout")
+    run_job("timeout")
 
     loglines = caplog.actual()
     assert ("root", "ERROR", "Timing out job timed out after 0.005 minutes") in loglines
@@ -75,8 +73,7 @@ def test_timeout(MockSmtp, caplog):
 @testfixtures.log_capture()
 def test_stderr(MockSmtp, caplog):
     """Test that stderr is being routed to the log."""
-    with nose.tools.assert_raises(runner.JobFailure):
-        run_job("errors")
+    run_job("errors")
 
     loglines = list(caplog.actual())
     # FIXME: Use an included script, 'cos even posix output may change some day.

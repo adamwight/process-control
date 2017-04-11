@@ -31,12 +31,7 @@ class JobRunner(object):
             passwd_entry = pwd.getpwnam(service_user)
         assert passwd_entry.pw_uid == os.getuid()
 
-        lock.begin(slug=self.job.slug)
         self.start_time = datetime.datetime.utcnow()
-        job_history = job_state.load_state(self.job.slug)
-        job_history.record_started(self.start_time)
-
-        config.log.info("Running job {name} ({slug})".format(name=self.job.name, slug=self.job.slug))
 
         # Spawn timeout monitor thread.
         if self.job.timeout > 0:
@@ -45,17 +40,22 @@ class JobRunner(object):
             timer = threading.Timer(timeout_seconds, self.fail_timeout)
             timer.start()
 
+        job_history = job_state.load_state(self.job.slug)
+        job_history.record_started(self.start_time)
+
         try:
+            lock.begin(slug=self.job.slug)
+
+            config.log.info("Running job {name} ({slug})".format(name=self.job.name, slug=self.job.slug))
             for command_line in self.job.commands:
                 return_code = self.run_command(command_line)
                 if return_code != 0:
                     self.fail_exitcode(return_code)
             job_history.record_success()
-        except JobFailure as ex:
+        except (JobFailure, lock.LockError) as ex:
             config.log.error(str(ex))
             self.mailer.fail_mail(str(ex), logfile=self.logfile)
             job_history.record_failure()
-            raise
         finally:
             if self.job.timeout > 0:
                 # This becomes relevant when running multiple commands.
