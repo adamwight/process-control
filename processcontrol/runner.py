@@ -52,6 +52,7 @@ class JobRunner(object):
                 if return_code != 0:
                     self.fail_exitcode(return_code)
             job_history.record_success()
+            config.log.info("Successfully completed {slug}.".format(slug=self.job.slug))
         except (JobFailure, lock.LockError) as ex:
             config.log.error(str(ex))
             self.mailer.fail_mail(str(ex), logfile=self.logfile)
@@ -73,6 +74,7 @@ class JobRunner(object):
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.job.environment)
         streamer = output_streamer.OutputStreamer(self.process, self.job.slug, command_string, self.start_time)
         self.logfile = streamer.filename
+        config.log.info("Logging to {path}".format(path=self.logfile))
         streamer.start()
 
         # should be safe from deadlocks because our OutputStreamer

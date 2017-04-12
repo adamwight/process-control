@@ -44,7 +44,7 @@ def begin(failopen=False, slug=None):
         os.unlink(filename)
 
     with open(filename, "w") as f:
-        config.log.info("Writing lockfile.")
+        config.log.debug("Writing lockfile.")
         f.write(str(os.getpid()))
 
     global lockfile
@@ -55,7 +55,7 @@ def end():
     global lockfile
     if lockfile:
         if os.path.exists(lockfile):
-            config.log.info("Clearing lockfile.")
+            config.log.debug("Clearing lockfile.")
             os.unlink(lockfile)
         else:
             raise LockError("Already unlocked!")
