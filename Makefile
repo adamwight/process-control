@@ -21,7 +21,7 @@ coverage:
 deb: debian
 	@echo Note that this is not how we build our production .deb
 	# FIXME: fragile
-	cd ..; tar cjf process-control_1.0.5.orig.tar.bz2 process-control; cd process-control
+	cd ..; tar cjf process-control_1.0.6.orig.tar.bz2 process-control; cd process-control
 	debuild -us -uc
 
 debian:

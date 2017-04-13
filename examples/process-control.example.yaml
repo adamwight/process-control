@@ -11,14 +11,14 @@ runner_path: /usr/bin/run-job
 
 # Enforce that jobs are run as this service user.
 # FIXME: new service user for this package.
-user: jenkins
+user: process-control
 
 # Default values used when the job description doesn't have these keys.  See
 # the README for a discussion of how to configure jobs.
 default_job_config:
     failmail:
-        from_address: "Fail Mail <fr-tech@wikimedia.org>"
-        to_address: "fr-tech@wikimedia.org"
+        from_address: "process-control@localhost"
+        to_address: "root@localhost"
 
     # Make the default timeout ten minutes.  If this line is removed, jobs will
     # have unlimited time to run.
@@ -75,11 +75,6 @@ output_directory: /var/log/process-control
 
 # Path for working files such as locks.
 #
-# TODO: The deb install should create this directory and do something about
-# permissions.
-# TODO: rename to `lock_directory`
-#run_directory: /var/run/process-control
-#
-run_directory: /tmp
+run_directory: /var/run/process-control
 
 state_directory: /var/cache/process-control
