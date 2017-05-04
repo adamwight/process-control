@@ -42,6 +42,7 @@ which will look for a job configuration in `/var/lib/process-control/cpu_maratho
 Other actions on jobs can be accessed like:
 
     run-job --list-jobs
+    run-job --status
 
 Jobs are listed in a format like so:
 

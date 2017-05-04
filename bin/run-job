@@ -9,29 +9,36 @@ from processcontrol import job_spec
 from processcontrol import job_state
 
 
-def list_jobs():
+def list_jobs(verbose):
 	for job_slug in job_spec.list():
 		try:
-			# FIXME: Nicer if this inner loop moved to Job rather than having
-			# status come from an ephemeral runner.
-			job = job_spec.load(job_slug)
-			message = "{job} - {name}".format(job=job_slug, name=job.name)
-			status = runner.JobRunner(job).status()
-			if status is not None:
-				message += "    " + yaml.dump(status).strip()
+			if verbose:
+				# FIXME: Nicer if this inner loop moved to Job rather than having
+				# status come from an ephemeral runner.
+				job = job_spec.load(job_slug)
+				message = "{job} - {name}".format(job=job_slug, name=job.name)
+				status = runner.JobRunner(job).status()
+				if status is not None:
+					message += "	" + yaml.dump(status).strip()
 
-			# TODO: command-line flag to verbose or not.
-			if job.description is not None:
-				message += "\n    " + job.description
+				# TODO: command-line flag to verbose or not.
+				if job.description is not None:
+					message += "\n	" + job.description
 
-			if len(job.tags) > 0:
-				message += "\n    tags: " + ", ".join(job.tags)
+				if len(job.tags) > 0:
+					message += "\n	tags: " + ", ".join(job.tags)
 
-			stored_state = job_state.load_state(job_slug)
-			message += "\n    last status: " + stored_state.last_completion_status
+				stored_state = job_state.load_state(job_slug)
+				message += "\n	last status: " + stored_state.last_completion_status
+			else:
+				message = job_slug
 
 		except AssertionError:
-			message = "{job} ***Invalid configuration***".format(job=job_slug)
+			if verbose:
+				message = "{job} ***Invalid configuration***".format(job=job_slug)
+			else:
+				break
+
 		print(message)
 
 
@@ -42,7 +49,8 @@ if __name__ == "__main__":
 	job_group = parser.add_mutually_exclusive_group()
 	job_group.add_argument("job", nargs="?", help="Run a given job.", type=str)
 	job_group.add_argument("-j", "--job", dest="job_name", help="Run a given job.", type=str)
-	parser.add_argument("-l", "--list-jobs", help="Print a summary of available jobs.", action='store_true')
+	parser.add_argument("-l", "--list-jobs", help="Print a list of available jobs.", action='store_true')
+	parser.add_argument("-s", "--status", help="Print status of all jobs", action='store_true')
 	# TODO: --kill-job, --disable-group, --enable-group
 	args = parser.parse_args()
 
@@ -57,4 +65,7 @@ if __name__ == "__main__":
 		runner.run()
 
 	if args.list_jobs:
-		list_jobs()
+		list_jobs(False)
+
+	if args.status:
+		list_jobs(True)
