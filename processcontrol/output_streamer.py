@@ -62,7 +62,7 @@ class OutputStreamer(object):
 
     def read_lines(self, stream, is_error_stream=False):
         while True:
-            line = stream.readline().decode("utf-8")
+            line = stream.readline().decode("utf-8", "replace")
             if line == "":
                 break
             line = line.rstrip("\n")
