@@ -22,7 +22,7 @@ class JobRunner(object):
         self.killer_was_me = False
         self.failure_reason = None
 
-    def run(self):
+    def run(self, slow_start=False):
         # Check that we are the service user.
         service_user = str(self.global_config.get("user"))
         if service_user.isdigit():
@@ -46,8 +46,16 @@ class JobRunner(object):
         try:
             lock.begin(slug=self.job.slug)
 
-            config.log.info("Running job {name} ({slug})".format(name=self.job.name, slug=self.job.slug))
-            for command_line in self.job.commands:
+            if slow_start:
+                if self.job.slow_start_command is False:
+                    raise JobFailure("This job has no slow_start_command configured")
+                commands = self.job.slow_start_command
+                verb = "Slow starting"
+            else:
+                commands = self.job.commands
+                verb = "Running"
+            config.log.info("{verb} job {name} ({slug})".format(verb=verb, name=self.job.name, slug=self.job.slug))
+            for command_line in commands:
                 return_code = self.run_command(command_line)
                 if return_code != 0:
                     self.fail_exitcode(return_code)

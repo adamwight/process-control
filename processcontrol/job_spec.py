@@ -60,6 +60,11 @@ class Job(object):
 
         self.commands = self.config.get_as_list("command")
 
+        if self.config.has("slow_start_command"):
+            self.slow_start_command = self.config.get_as_list("slow_start_command")
+        else:
+            self.slow_start_command = False
+
         if self.config.has("tag"):
             self.tags = self.config.get_as_list("tag")
         else:

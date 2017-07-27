@@ -17,12 +17,12 @@ description: >
 # a shell, so globbing, redirecting, and other trickery will not work.  Please
 # give the full path to executables as in a crontab.
 #
-#command: /usr/X11/bin/xsnow -geometry=100x300
+# command: /usr/X11/bin/xsnow -geometry=100x300
 #
 # Alternatively, a job can be configured as a list of several commands.  These
 # are executed in sequence, and execution stops at the first failure.
 #
-#command:
+# command:
 #    # Run a command directly.
 #    - /usr/bin/puppet apply
 #
@@ -35,7 +35,13 @@ description: >
 #
 command: /usr/local/bin/timecard --start 9:00 --end 5:30
 
-# Optional schedule, in Vixie cron format:
+# An optional alternate command line. This can be useful for a scheduled job
+# which normally processes large amounts of data, in order to test manually
+# with a smaller run using run-job --slow-start job_name.
+#
+# slow_start_command: /usr/local/bin/record_processor --record_count 1
+
+# Optional shedule, in Vixie cron format:
 # minute hour day-of-month month day-of-week
 schedule: "*/5 * * * *"
 
@@ -43,7 +49,7 @@ schedule: "*/5 * * * *"
 # Optional flag to prevent scheduled job execution.  The job
 # can still be run as a single-shot.
 #
-#disabled: true
+# disabled: true
 
 #
 # Optional timeout in minutes, after which your job will be
@@ -61,8 +67,8 @@ environment:
 #
 # Optional job tags, which can be used to manipulate groups of jobs sharing that tag.
 #
-#tag: beta
+# tag: beta
 #
-#tag:
+# tag:
 #    - database
 #    - queue

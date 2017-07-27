@@ -52,6 +52,10 @@ multi - Multi job
 blast - Blastoff job    {pid: 5647, status: running}
 ```
 
+If a job configuration has a 'slow_start_command' defined, that alternate
+ command can be run with:
+
+    run-job --slow-start huge_job
 
 Scheduled Jobs
 ======

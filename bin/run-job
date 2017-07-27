@@ -50,7 +50,14 @@ if __name__ == "__main__":
 	job_group.add_argument("job", nargs="?", help="Run a given job.", type=str)
 	job_group.add_argument("-j", "--job", dest="job_name", help="Run a given job.", type=str)
 	parser.add_argument("-l", "--list-jobs", help="Print a list of available jobs.", action='store_true')
-	parser.add_argument("-s", "--status", help="Print status of all jobs", action='store_true')
+	parser.add_argument("-s", "--status", help="Print status of all jobs.", action='store_true')
+	parser.add_argument(
+		"-w",
+		"--slow-start",
+		dest="slow_start",
+		help="Slow start a job, if a slow-start configuration has been supplied.",
+		action="store_true"
+	)
 	# TODO: --kill-job, --disable-group, --enable-group
 	args = parser.parse_args()
 
@@ -62,7 +69,7 @@ if __name__ == "__main__":
 	if job_name is not None:
 		job = job_spec.load(job_name)
 		runner = runner.JobRunner(job)
-		runner.run()
+		runner.run(slow_start=args.slow_start)
 
 	if args.list_jobs:
 		list_jobs(False)

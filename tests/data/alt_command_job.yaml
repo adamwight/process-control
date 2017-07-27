@@ -1,0 +1,5 @@
+name: Run alternate command line
+description:
+    Processes all the things normally, and just a few with --slow-start
+command: echo "Working hard..."
+slow_start_command: echo "or hardly working?"

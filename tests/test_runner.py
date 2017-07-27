@@ -18,10 +18,10 @@ def teardown_module():
     override_config.stop()
 
 
-def run_job(job_name):
+def run_job(job_name, run_args={}):
     job = job_spec.load(job_name)
     job_runner = runner.JobRunner(job)
-    job_runner.run()
+    job_runner.run(**run_args)
 
 
 def test_success():
@@ -92,6 +92,20 @@ def test_store_output():
     lines = get_output_lines("which_out")
 
     assert "INFO\t/bin/bash" in lines
+
+
+def test_slow_start():
+    run_job("alt_command_job")
+
+    lines = get_output_lines("alt_command_job")
+
+    assert "INFO\tWorking hard..." in lines
+
+    run_job("alt_command_job", {'slow_start': True})
+
+    lines = get_output_lines("alt_command_job")
+
+    assert "INFO\tor hardly working?" in lines
 
 
 def test_environment():
