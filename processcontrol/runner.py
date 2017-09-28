@@ -13,11 +13,14 @@ from . import output_streamer
 
 
 class JobRunner(object):
+
     def __init__(self, job):
         self.global_config = config.GlobalConfiguration()
         self.job = job
         self.mailer = mailer.Mailer(self.job)
         self.logfile = None
+        self.process = None
+        self.start_time = None
 
         self.killer_was_me = False
         self.failure_reason = None
