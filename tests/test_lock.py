@@ -1,4 +1,3 @@
-import nose
 import os.path
 
 from processcontrol import config
@@ -27,13 +26,19 @@ def test_success():
     assert not os.path.exists(path)
 
 
-@nose.tools.raises(lock.LockError)
 def test_live_lock():
+    raised = False
     tag = "live"
     lock.begin(slug=tag)
 
-    # Will die because the process (this one) is still running.
-    lock.begin(slug=tag)
+    try:
+        # Will die because the process (this one) is still running.
+        lock.begin(slug=tag)
+    except lock.LockError as e:
+        assert e.code == lock.LockError.LOCK_EXISTS
+        raised = True
+
+    assert raised
 
 
 def test_stale_lock():
@@ -58,8 +63,8 @@ def test_stale_lock():
     lock.end()
 
 
-@nose.tools.raises(lock.LockError)
 def test_stale_lock_failopen():
+    raised = False
     tag = "stale-open"
     lock.begin(slug=tag)
 
@@ -69,7 +74,13 @@ def test_stale_lock_failopen():
     f.write("-1")
     f.close()
 
-    lock.begin(slug=tag, failopen=True)
+    try:
+        lock.begin(slug=tag, failopen=True)
+    except lock.LockError as e:
+        assert e.code == lock.LockError.STALE_LOCKFILE
+        raised = True
+
+    assert raised
 
 
 def test_invalid_lock():

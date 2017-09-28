@@ -78,3 +78,11 @@ class JobState(object):
         })
         self.last_completion_status = "failure"
         self.write()
+
+    def record_skipped(self):
+        self.history.append({
+            "status": "skipped",
+            "time": datetime.datetime.utcnow().isoformat(" "),
+        })
+        self.last_completion_status = "skipped"
+        self.write()

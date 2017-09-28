@@ -35,10 +35,16 @@ def begin(failopen=False, slug=None):
         else:
             try:
                 os.getpgid(pid)
-                raise LockError("Aborting! Previous process ({pid}) is still alive. Remove lockfile manually if in error: {path}".format(pid=pid, path=filename))
+                raise LockError(
+                    "Aborting! Previous process ({pid}) is still alive. Remove lockfile manually if in error: {path}".format(pid=pid, path=filename),
+                    LockError.LOCK_EXISTS
+                )
             except OSError:
                 if failopen:
-                    raise LockError("Aborting until stale lockfile is investigated: {path}".format(path=filename))
+                    raise LockError(
+                        "Aborting until stale lockfile is investigated: {path}".format(path=filename),
+                        LockError.STALE_LOCKFILE
+                    )
                 config.log.error("Lockfile is stale.")
         config.log.error("Removing old lockfile.")
         os.unlink(filename)
@@ -58,10 +64,16 @@ def end():
             config.log.debug("Clearing lockfile.")
             os.unlink(lockfile)
         else:
-            raise LockError("Already unlocked!")
+            raise LockError("Already unlocked!", LockError.ALREADY_UNLOCKED)
 
     lockfile = None
 
 
 class LockError(RuntimeError):
-    pass
+    LOCK_EXISTS = 1
+    ALREADY_UNLOCKED = 2
+    STALE_LOCKFILE = 3
+
+    def __init__(self, message, code=None):
+        RuntimeError.__init__(self, message)
+        self.code = code

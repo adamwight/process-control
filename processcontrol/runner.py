@@ -54,9 +54,13 @@ class JobRunner(object):
             job_history.record_success()
             config.log.info("Successfully completed {slug}.".format(slug=self.job.slug))
         except (JobFailure, lock.LockError) as ex:
-            config.log.error(str(ex))
-            self.mailer.fail_mail(str(ex), logfile=self.logfile)
-            job_history.record_failure()
+            if ex is lock.LockError and ex.code == lock.LockError.LOCK_EXISTS and self.job.allow_overtime:
+                config.log.info("Previous job is still running, but that's OK.")
+                job_history.record_skipped(self.start_time)
+            else:
+                config.log.error(str(ex))
+                self.mailer.fail_mail(str(ex), logfile=self.logfile)
+                job_history.record_failure()
         finally:
             if self.job.timeout > 0:
                 # This becomes relevant when running multiple commands.

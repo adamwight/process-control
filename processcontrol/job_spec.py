@@ -69,3 +69,8 @@ class Job(object):
             self.description = self.config.get("description")
         else:
             self.description = None
+
+        if self.config.has("allow_overtime"):
+            self.allow_overtime = self.config.get("allow_overtime")
+        else:
+            self.allow_overtime = False
