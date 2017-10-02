@@ -69,7 +69,7 @@ if __name__ == "__main__":
 	if job_name is not None:
 		job = job_spec.load(job_name)
 		runner = runner.JobRunner(job)
-		runner.run(slow_start=args.slow_start)
+		runner.run(**vars(args))
 
 	if args.list_jobs:
 		list_jobs(False)
