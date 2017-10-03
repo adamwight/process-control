@@ -8,19 +8,19 @@ from processcontrol import job_spec
 from processcontrol import job_state
 
 
-def list_jobs(verbose):
+def list_jobs(verbose=True, only_running=False):
     for job_slug in job_spec.list():
         try:
+            # FIXME: Nicer if this inner loop moved to Job rather than having
+            # status come from an ephemeral runner.
+            job = job_spec.load(job_slug)
+            status = runner.JobRunner(job).status()
+            if status is None and only_running:
+                continue
             if verbose:
-                # FIXME: Nicer if this inner loop moved to Job rather than having
-                # status come from an ephemeral runner.
-                job = job_spec.load(job_slug)
                 message = "{job} - {name}".format(job=job_slug, name=job.name)
-                status = runner.JobRunner(job).status()
                 if status is not None:
                     message += "\t" + yaml.dump(status).strip()
-
-                # TODO: command-line flag to verbose or not.
                 if job.description is not None:
                     message += "\n\t" + job.description
 
@@ -33,10 +33,12 @@ def list_jobs(verbose):
                 message = job_slug
 
         except AssertionError:
+            if only_running:
+                continue
             if verbose:
                 message = "{job} ***Invalid configuration***".format(job=job_slug)
             else:
-                break
+                message = job_slug
 
         print(message)
 
@@ -49,7 +51,8 @@ if __name__ == "__main__":
     job_group.add_argument("job", nargs="?", help="Run a given job.", type=str)
     job_group.add_argument("-j", "--job", dest="job_name", help="Run a given job.", type=str)
     parser.add_argument("-l", "--list-jobs", help="Print a list of available jobs.", action='store_true')
-    parser.add_argument("-s", "--status", help="Print status of all jobs", action='store_true')
+    parser.add_argument("-s", "--status", help="Print status of all jobs.", action='store_true')
+    parser.add_argument("-r", "--only-running", help="Only list or print status of running jobs.", action='store_true')
     parser.add_argument(
         "-w",
         "--slow-start",
@@ -70,8 +73,5 @@ if __name__ == "__main__":
         runner = runner.JobRunner(job)
         runner.run(**vars(args))
 
-    if args.list_jobs:
-        list_jobs(False)
-
-    if args.status:
-        list_jobs(True)
+    if args.list_jobs or args.status:
+        list_jobs(verbose=args.status, only_running=args.only_running)
