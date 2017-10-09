@@ -65,7 +65,7 @@ class JobRunner(object):
             job_history.record_success()
             config.log.info("Successfully completed {slug}.".format(slug=self.job.slug))
         except (JobFailure, lock.LockError) as ex:
-            if ex is lock.LockError and ex.code == lock.LockError.LOCK_EXISTS and self.job.allow_overtime:
+            if isinstance(ex, lock.LockError) and ex.code == lock.LockError.LOCK_EXISTS and self.job.allow_overtime:
                 config.log.info("Previous job is still running, but that's OK.")
                 job_history.record_skipped(self.start_time)
             else:
