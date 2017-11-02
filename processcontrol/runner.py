@@ -67,7 +67,7 @@ class JobRunner(object):
         except (JobFailure, lock.LockError) as ex:
             if isinstance(ex, lock.LockError) and ex.code == lock.LockError.LOCK_EXISTS and self.job.allow_overtime:
                 config.log.info("Previous job is still running, but that's OK.")
-                job_history.record_skipped(self.start_time)
+                job_history.record_skipped()
             else:
                 config.log.error(str(ex))
                 self.mailer.fail_mail(str(ex), logfile=self.logfile)
